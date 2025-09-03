@@ -17,4 +17,6 @@ import lombok.Getter;
 //
 //    @Column(unique = true)
 //    private String email;
+//    @Column(columnDefinition = "integer default 1")
+//    private int status;
 //}

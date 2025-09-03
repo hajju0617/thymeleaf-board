@@ -1,11 +1,11 @@
 package com.project.thymeleafboard.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 
 @Entity
@@ -15,14 +15,18 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
     private LocalDateTime createDate;
+
     private LocalDateTime modifyDate;
 
+    @Column(columnDefinition = "integer default 1", nullable = false)
+    private int status;
+
     @ManyToOne
-    private Board board;
+    private Article article;
 
 //    @ManyToOne
 //    private SiteUser author;
@@ -34,10 +38,11 @@ public class Comment {
 
     }
 
-    public Comment(String content, Board board) {
+    public Comment(Article article, String content) {
         this.content = content;
-        this.board = board;
+        this.article = article;
         this.createDate = LocalDateTime.now();
+        this.status = 1;
     }
 
     // 수정 테스트용 임시 메서드.
