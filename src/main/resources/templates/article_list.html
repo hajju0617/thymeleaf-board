@@ -1,29 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>게시판</title>
-</head>
-<body>
+<!-- layout.html을 상속 받도록 설정. -->
+<html layout:decorate="~{layout}">
+<!-- 부모 템플릿(layout.html)의 layout:fragment="content" 부분에 삽입되도록 설정. -->
+<div layout:fragment="content" class="container my-3">
+    <table class="table">
+        <thead class="table-dark">
+            <tr>
+                <th>번호</th>
+                <th>제목</th>
+                <th>작성일시</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="article, loop : ${articleList}">
+                <!-- 번호 -->
+                <td th:text="${loop.count}"></td>
+                <!-- 제목 -->
+                <td>
+                    <a th:href="@{|/article/detail/${article.id}|}" th:text="${article.title}"></a>
+                </td>
+                <!-- 작성일시 (#temporals.format(날짜 객체, 날짜 포맷)) -->
+                <td th:text="${#temporals.format(article.createDate, 'yyyy-MM-dd HH:mm')}"></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
-<table>
-    <thead>
-        <tr>
-            <th>제목</th>
-            <th>내용</th>
-            <th>작성일시</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr th:each="article : ${articleList}">
-            <td>
-                <a th:href="@{|/article/detail/${article.id}|}" th:text="${article.title}"></a>
-            </td>
-            <td th:text="${article.content}"></td>
-            <td th:text="${article.createDate}"></td>
-        </tr>
-    </tbody>
-</table>
-
-</body>
 </html>
