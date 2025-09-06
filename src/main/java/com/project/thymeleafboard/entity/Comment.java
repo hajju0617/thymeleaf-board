@@ -45,6 +45,10 @@ public class Comment {
         this.status = 1;
     }
 
+    public static Comment createComment(Article article, String content) {
+        return new Comment(article, content);
+    }
+
     // 수정 테스트용 임시 메서드.
     public void patchCommentTest(Comment comment) {
         if (comment.getContent() != null) {

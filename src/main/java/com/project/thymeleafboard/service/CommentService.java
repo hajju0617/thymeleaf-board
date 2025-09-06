@@ -6,13 +6,15 @@ import com.project.thymeleafboard.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import static com.project.thymeleafboard.entity.Comment.createComment;
+
 @Service
 @RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
 
     public void create(Article article, String content) {
-        Comment comment = new Comment(article, content);
+        Comment comment = createComment(article, content);
         commentRepository.save(comment);
     }
 }
