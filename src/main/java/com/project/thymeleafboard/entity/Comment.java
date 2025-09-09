@@ -7,6 +7,8 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+import static com.project.thymeleafboard.common.GlobalConst.SUCCESS;
+
 
 @Entity
 @Getter
@@ -38,11 +40,11 @@ public class Comment {
 
     }
 
-    public Comment(Article article, String content) {
+    private Comment(Article article, String content) {
         this.content = content;
         this.article = article;
         this.createDate = LocalDateTime.now();
-        this.status = 1;
+        this.status = SUCCESS;
     }
 
     public static Comment createComment(Article article, String content) {

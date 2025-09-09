@@ -1,10 +1,13 @@
 package com.project.thymeleafboard.entity;
 
+import com.project.thymeleafboard.exception.DeletedArticleException;
 import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static com.project.thymeleafboard.common.GlobalConst.SUCCESS;
 
 @Entity
 @Getter
@@ -44,10 +47,21 @@ public class Article {
 
     }
 
-    public Article(String title, String content) {
+    private Article(String title, String content) {
         this.title = title;
         this.content = content;
         this.createDate = LocalDateTime.now();
+        this.status = SUCCESS;
+    }
+
+    public static Article create(String title, String content) {
+        return new Article(title, content);
+    }
+
+    public void validateStatus(int status) {
+        if (status == -1) {
+            throw new DeletedArticleException("삭제된 게시글 조회");
+        }
     }
 
 

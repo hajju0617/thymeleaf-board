@@ -14,7 +14,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
 
     public void create(Article article, String content) {
-        Comment comment = createComment(article, content);
+        Comment comment = Comment.createComment(article, content);
         commentRepository.save(comment);
     }
 }

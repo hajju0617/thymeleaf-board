@@ -19,9 +19,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
+    @ExceptionHandler(DataNotFoundException.class)
+    public String handleDataNotFoundException(DataNotFoundException dnfe) {
+        log.warn("존재하지 않는 게시글 요청 : {}", dnfe.getMessage());
+        return "redirect:/article/list";
+    }
+
     @ExceptionHandler(DeletedArticleException.class)
-    public String handleDeletedArticleException(DeletedArticleException de) {
-        log.warn("삭제된 게시글 요청 : {}", de.getMessage());
+    public String handleDeletedArticleException(DeletedArticleException dae) {
+        log.warn("삭제된 게시글 요청 : {}", dae.getMessage());
         return "redirect:/article/list";
     }
 }

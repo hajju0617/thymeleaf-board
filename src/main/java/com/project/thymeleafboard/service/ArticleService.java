@@ -2,7 +2,6 @@ package com.project.thymeleafboard.service;
 
 import com.project.thymeleafboard.entity.Article;
 import com.project.thymeleafboard.exception.DataNotFoundException;
-import com.project.thymeleafboard.exception.DeletedArticleException;
 import com.project.thymeleafboard.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,12 +21,15 @@ public class ArticleService {
 
         if (optionalArticle.isPresent()) {
             Article article = optionalArticle.get();
-            if (article.getStatus() == -1) {
-                throw new DeletedArticleException("삭제된 게시글 조회");
-            }
+            article.validateStatus(article.getStatus());
             return article;
         } else {
             throw new DataNotFoundException("존재하지 않는 게시글 조회");
         }
+    }
+
+    public void createArticle(String title, String content) {
+        Article article = Article.create(title, content);
+        articleRepository.save(article);
     }
 }
