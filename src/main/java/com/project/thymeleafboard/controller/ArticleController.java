@@ -6,6 +6,7 @@ import com.project.thymeleafboard.entity.Article;
 import com.project.thymeleafboard.service.ArticleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,11 +22,18 @@ public class ArticleController {
 
     /*
         전체 게시판 글 조회.
+
+        @Param
+        page : 클라이언트에서 요청한 페이지 번호.
+        size : 페이지당 게시글 수.
+
     */
     @GetMapping("/list")
-    public String list(Model model) {
-        List<Article> articleList = articleService.getList();
-        model.addAttribute("articleList", articleList);
+    public String list(Model model, @RequestParam(value = "page", defaultValue = "0") int page
+                                  , @RequestParam(value = "size", defaultValue = "10") int size) {
+        Page<Article> articlePage = articleService.getList(page, size);
+        model.addAttribute("articlePage", articlePage);
+        model.addAttribute("size", size);
         return "article_list";
     }
 
@@ -59,6 +67,7 @@ public class ArticleController {
 
         @Param
         ArticleDto : 글 제목, 내용
+        BindingResult : @Valid 에노테이션의 검증 결과를 담고 있는 객체. (뷰템플릿에서 검증결과 에러를 출력)
     */
     @PostMapping("/create")
     public String createArticle(@Valid ArticleDto articleDto, BindingResult bindingResult) {
@@ -66,7 +75,7 @@ public class ArticleController {
         if (bindingResult.hasErrors()) {
             return "/article_form";
         }
-        articleService.createArticle(articleDto.getTitle(), articleDto.getContent());
+        articleService.createArticle(articleDto);
         return "redirect:/article/list";
     }
 }

@@ -1,8 +1,10 @@
 package com.project.thymeleafboard.entity;
 
+import com.project.thymeleafboard.dto.ArticleDto;
 import com.project.thymeleafboard.exception.DeletedArticleException;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -54,8 +56,8 @@ public class Article {
         this.status = SUCCESS;
     }
 
-    public static Article create(String title, String content) {
-        return new Article(title, content);
+    public static Article create(ArticleDto articleDto) {
+        return new Article(articleDto.getTitle(), articleDto.getContent());
     }
 
     public void validateStatus(int status) {
