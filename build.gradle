@@ -24,6 +24,10 @@ repositories {
 }
 
 dependencies {
+    // Spring Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    // Thymeleaf, Spring Security 연동하기 위한 라이브러리
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
     // Validation
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     // Thymeleaf
@@ -33,8 +37,6 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
     // JPA
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    // Thymeleaf
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     // WEB
     implementation 'org.springframework.boot:spring-boot-starter-web'
     // Test DB

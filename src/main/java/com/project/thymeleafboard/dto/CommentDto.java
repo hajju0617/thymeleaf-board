@@ -4,9 +4,11 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
+import static com.project.thymeleafboard.common.GlobalConst.CONTENT_REQUIRED;
+
 @Getter
 @Setter
 public class CommentDto {
-    @NotBlank(message = "내용은 필수 입력 항목입니다.")
+    @NotBlank(message = CONTENT_REQUIRED)
     private String content;
 }

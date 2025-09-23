@@ -2,7 +2,7 @@
 <html layout:decorate="~{layout}">
     <!-- 부모 템플릿(layout.html)의 layout:fragment="content" 부분에 삽입되도록 설정. -->
     <div layout:fragment="content" class="container my-3">
-        <h5 class="my-3 border-bottom pb-2">게시판 글쓰기</h5>
+        <h4 class="my-3 border-bottom pb-2">글쓰기</h4>
         <form th:action="@{/article/create}" method="post" th:object="${articleDto}">
             <!-- {뷰 템플릿 파일명 :: 해당 템플릿 안에 정의된 프레그먼트 이름 -->
             <div th:replace="~{binding_result_errors :: bindingResultErrorsFragment}"></div>

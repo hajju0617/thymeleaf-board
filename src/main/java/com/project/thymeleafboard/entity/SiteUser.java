@@ -1,22 +1,59 @@
 package com.project.thymeleafboard.entity;
 
+import com.project.thymeleafboard.dto.UserDto;
+import com.project.thymeleafboard.security.UserRole;
 import jakarta.persistence.*;
 import lombok.Getter;
 
-//@Entity
-//@Getter
-//public class SiteUser {
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Integer id;
-//
-//    @Column(unique = true)
-//    private String username;
-//
-//    private String password;
-//
-//    @Column(unique = true)
-//    private String email;
-//    @Column(columnDefinition = "integer default 1")
-//    private int status;
-//}
+import java.time.LocalDateTime;
+
+import static com.project.thymeleafboard.common.GlobalConst.SUCCESS;
+
+@Entity
+@Getter
+public class SiteUser {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @Column(unique = true, nullable = false)
+    private String username;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    @Column(columnDefinition = "integer default 1", nullable = false)
+    private int status;
+
+    private LocalDateTime createDate;
+
+    private LocalDateTime modifyDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole role;
+
+    public SiteUser() {
+
+    }
+
+    private SiteUser(String username, String password, String email) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.status = SUCCESS;
+        this.createDate = LocalDateTime.now();
+        if (!username.equals("admin")) {
+            this.role = UserRole.USER;
+        } else {
+            this.role = UserRole.ADMIN;
+        }
+    }
+
+    public static SiteUser create(UserDto userDto, String password) {
+        return new SiteUser(userDto.getUsername(), password, userDto.getEmail());
+    }
+}

@@ -1,0 +1,41 @@
+<!-- layout.html을 상속 받도록 설정. -->
+<html layout:decorate="~{layout}">
+<!-- 부모 템플릿(layout.html)의 layout:fragment="content" 부분에 삽입되도록 설정. -->
+    <div layout:fragment="content" class="container my-3" style="max-width: 900px">
+        <h4 class="my-3 border-bottom pb-2">로그인</h4>
+        <form th:action="@{/user/login}" method="post">
+            <!--  로그인에 실패할 경우 /user/login?error 처럼 error를 전달하는데 이를 활용하기 위해서. (로그인에 실패할 경우 시큐리티에 의해 로그인 페이지로 리다이렉트 됨.) -->
+            <div th:if="${param.error}">
+                <div class="alert alert-danger alert-dismissible fade show">ID 또는 비밀번호를 확인해 주세요.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="username" class="form-label">아이디</label>
+                <input type="text" name="username" id="username" class="form-control" placeholder="아이디">
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">비밀번호</label>
+                <input type="password" name="password" id="password" class="form-control" placeholder="비밀번호">
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" name="remember-me" id="remember-me" class="form-check-input"/>
+                <label for="remember-me" class="form-check-label">자동로그인</label>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">로그인</button>
+        </form>
+
+        <a href="/oauth2/authorization/google" class="btn btn-outline-success d-flex align-items-center justify-content-center mt-3">
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo" width="20" height="20" class="me-2">
+            Google 로그인
+        </a>
+        <div class="mt-3 d-grid">
+            <a th:href="@{/user/signup}" sec:authorize="isAnonymous()" class="btn btn-outline-primary btn-sm w-50 mx-auto">회원가입</a>
+        </div>
+
+        <div class="mt-3 d-flex justify-content-evenly">
+            <a th:href="@{/user/findId}" class="btn btn-outline-secondary btn-sm">아이디 찾기</a>
+            <a th:href="@{/user/findPw}" class="btn btn-outline-secondary btn-sm">비밀번호 찾기</a>
+        </div>
+    </div>
+</html>
