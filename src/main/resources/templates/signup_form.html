@@ -1,5 +1,11 @@
 <!-- layout.html을 상속 받도록 설정. -->
 <html layout:decorate="~{layout}">
+    <th:block layout:fragment="head">
+        <!--  csrf 토큰  -->
+        <meta name="_csrf" th:content="${_csrf.token}"/>
+        <!--  csrf 헤더  -->
+        <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    </th:block>
     <!-- 부모 템플릿(layout.html)의 layout:fragment="content" 부분에 삽입되도록 설정. -->
     <div layout:fragment="content" class="container my-3" style="max-width: 900px">
         <div class="my-3 border-bottom">
@@ -11,21 +17,178 @@
             <div th:replace="~{binding_result_errors :: bindingResultErrorsFragment}"></div>
             <div class="mb-3">
                 <label for="username" class="form-label">아이디</label>
-                <input type="text" th:field="*{username}" placeholder="영문 소문자와 숫자만 사용해서 3~15자리를 입력해 주세요." class="form-control">
+                <input type="text" th:field="*{username}" id="usernameInput" placeholder="영문 소문자와 숫자만 사용해서 5~15자리를 입력해 주세요." class="form-control">
+                <button type="button" id="duplicateCheckBtn" class="my-2 btn btn-outline-success">중복 확인</button>
+                <span id="username-msg"></span>
             </div>
             <div class="mb-3">
                 <label for="password" class="form-label">비밀번호</label>
-                <input type="password" th:field="*{password}" placeholder="영문 소문자, 숫자, 특수문자(!@#$%^&*)를 각각 최소 1개 이상 사용해서 10~20자리를 입력해 주세요." class="form-control">
+                <input type="password" th:field="*{password}" id="passwordInput" placeholder="영문 소문자, 숫자, 특수문자(!@#$%^&*)를 각각 최소 1개 이상 사용해서 8~20자리를 입력해 주세요." class="form-control">
+                <span id="password-msg"></span>
             </div>
             <div class="mb-3">
                 <label for="passwordConfirm" class="form-label">비밀번호 확인</label>
-                <input type="password" th:field="*{passwordConfirm}" placeholder="비밀번호를 다시 입력해 주세요." class="form-control">
+                <input type="password" th:field="*{passwordConfirm}" id="passwordConfirmInput" placeholder="비밀번호를 다시 입력해 주세요." class="form-control">
+                <span id="passwordConfirm-msg"></span>
             </div>
             <div class="mb-3">
                 <label for="email" class="form-label">이메일</label>
-                <input type="email" th:field="*{email}" placeholder="입력하신 이메일로 인증번호가 전송될 예정입니다." class="form-control">
+                <input type="email" th:field="*{email}" id="emailInput" placeholder="입력하신 이메일로 인증번호가 전송될 예정입니다." class="form-control">
+                <button type="button" id="sendCodeBtn" class="my-2 btn btn-outline-success" disabled>인증번호 전송</button>
+                <span id="email-msg"></span>
             </div>
-            <button type="submit" class="btn btn-primary">회원가입</button>
+            <div class="mb-3">
+                <label for="authNumInput" class="form-label" >인증 코드</label>
+                <input type="text" th:field="*{authNum}" id="authNumInput" class="form-control" />
+                <button type="button" id="verifyCodeBtn" class="my-2 btn btn-outline-success" disabled>
+                    인증확인
+                </button>
+                <span id="verification-msg"></span>
+            </div>
+            <button type="submit" id="signupBtn" class="btn btn-outline-primary" disabled>회원가입</button>
         </form>
     </div>
 </html>
+<script>
+    const emailRegexp = /^[a-zA-Z0-9]{5,15}@[a-z]{3,7}\.(com|net)$/;
+    const idRegexp = /^[a-z0-9]{5,15}$/;
+    const passwordRegexp = /^(?=.*[0-9])(?=.*[a-z])(?=.*[!@#$%^&*])\S{8,20}$/;
+
+    const csrfToken = document.querySelector("meta[name='_csrf']").content;
+    const csrfHeader = document.querySelector("meta[name='_csrf_header']").content;
+    const commonHeaders = {
+        [csrfHeader]: csrfToken,
+        "Content-Type": "application/json"
+    };
+
+    const ALERT_COLORS = {
+        SUCCESS: "blue",
+        FAIL: "red"
+    };
+
+    function setMessage(id, msg, color) {
+        const elementById = document.getElementById(id);
+        elementById.textContent = msg;
+        elementById.style.color = color;
+    };
+
+    // 아이디 유효성 검사.
+    document.getElementById("usernameInput").addEventListener("input", e => {
+        const vaild = idRegexp.test(e.target.value);
+        setMessage("username-msg",
+        vaild ? "올바른 아이디 형식이에요." : "아이디 형식이 올바르지 않아요. (영문 소문자+숫자 5~15자리)",
+        vaild ? ALERT_COLORS.SUCCESS : ALERT_COLORS.FAIL);
+    });
+
+    // 아이디 중복 체크.
+    document.getElementById("duplicateCheckBtn").addEventListener("click", () => {
+        const username = document.getElementById("usernameInput").value;
+        if (!idRegexp.test(username)) {
+            return alert("아이디 형식이 올바른지 확인해 주세요.");
+        };
+
+        fetch(`/user/check-username?username=${username}`)
+            .then(response => response.json())
+            .then(ok => setMessage("username-msg",
+            ok ? "사용 가능한 아이디예요." : "이미 사용 중인 아이디예요.",
+            ok ? ALERT_COLORS.SUCCESS : ALERT_COLORS.FAIL));
+    });
+
+    // 비밀번호 유효성 검사.
+    document.getElementById("passwordInput").addEventListener("input", e => {
+        const valid = passwordRegexp.test(e.target.value);
+        setMessage("password-msg",
+        valid ? "올바른 비밀번호 형식이에요." : "비밀번호 형식이 올바르지 않아요. (소문자+숫자+특수문자 8~20자리)",
+        valid ? ALERT_COLORS.SUCCESS : ALERT_COLORS.FAIL);
+
+        // 비밀번호, 비밀번호 확인이 서로 일치했지만 추후 비밀번호만 변경시 비밀번호 확인 또한 변경된 값을 검증하기 위해서.
+        document.getElementById("passwordConfirmInput").dispatchEvent(new Event("input"));
+    });
+
+
+    // 비밀번호 확인 검사.
+    document.getElementById("passwordConfirmInput").addEventListener("input", e => {
+        const password = document.getElementById("passwordInput").value;
+        if (password.length === 0) {
+            setMessage(passwordConfirmMsgId, "", "");
+            return;
+        }
+        const passwordConfirm = e.target.value;
+        let match = (password === passwordConfirm);
+        setMessage("passwordConfirm-msg",
+        match ? "비밀번호가 서로 일치해요" : "비밀번호가 서로 일치하지 않아요.",
+        match ? ALERT_COLORS.SUCCESS : ALERT_COLORS.FAIL);
+    });
+
+    // 이메일 유효성 검사.
+    document.getElementById("emailInput").addEventListener("input", e => {
+        const valid = emailRegexp.test(e.target.value);
+        setMessage("email-msg",
+        valid ? "올바른 이메일 형식이에요." : "이메일 형식이 올바르지 않아요. (5~15자리 @ 3~7자리 .com/.net)",
+        valid ? ALERT_COLORS.SUCCESS : ALERT_COLORS.FAIL);
+
+        document.getElementById("sendCodeBtn").disabled = !valid
+    });
+
+    // 이메일 인증번호 전송.
+    document.getElementById("sendCodeBtn").addEventListener("click", () => {
+        const email = document.getElementById("emailInput").value;
+
+        fetch("/email/send-verification", {
+            method: "POST",
+            headers: commonHeaders,
+            body: JSON.stringify({email})
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.text();
+                } else {
+                    return response.text().then(msg => {
+                        throw new Error(msg);
+                    });
+                }
+            })
+            .then(msg => {
+                alert(msg);
+                setMessage("verification-msg", "인증번호가 전송되었어요. 2분 내 입력해주세요.", ALERT_COLORS.SUCCESS);
+                document.getElementById("verifyCodeBtn").disabled = false;
+            })
+            .catch(err => {
+                alert(err.message);
+            });
+    });
+
+    // 인증번호 검증.
+    document.getElementById("verifyCodeBtn").addEventListener("click", () => {
+        const email = document.getElementById("emailInput").value;
+        const authNum = document.getElementById("authNumInput").value;
+
+        fetch("/email/verification-code", {
+            method: "POST",
+            headers: commonHeaders,
+            body: JSON.stringify({ email, authNum })
+        })
+            .then(res => {
+                if (res.ok) {
+                    return res.text();
+                } else {
+                    return res.text().then(msg => {
+                        throw new Error(msg);
+                    });
+                }
+            })
+            .then(msg => {
+                setMessage("verification-msg", msg, ALERT_COLORS.SUCCESS);
+                alert(msg);
+                document.getElementById("signupBtn").disabled = false;
+                document.getElementById("emailInput").readOnly = true;
+                document.getElementById("authNumInput").readOnly = true;
+            })
+            .catch(err => {
+                setMessage("verification-msg", err.message, ALERT_COLORS.FAIL);
+                alert(err.message);
+                document.getElementById("signupBtn").disabled = true;
+            });
+    });
+</script>
+

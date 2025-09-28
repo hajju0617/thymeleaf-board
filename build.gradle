@@ -24,6 +24,8 @@ repositories {
 }
 
 dependencies {
+    // Email
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
     // Spring Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
     // Thymeleaf, Spring Security 연동하기 위한 라이브러리

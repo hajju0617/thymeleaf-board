@@ -1,6 +1,7 @@
 package com.project.thymeleafboard.exception;
 
 
+import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,5 +30,12 @@ public class GlobalExceptionHandler {
     public String handleDeletedArticleException(DeletedArticleException dae) {
         log.warn("삭제된 게시글 요청 : {}", dae.getMessage());
         return "redirect:/article/list";
+    }
+
+    @ExceptionHandler(MailSendException.class)
+    public ResponseEntity<String> handleMailSendException(MailSendException mse) {
+        log.warn("메일 발송시 에러 발생 : {}", mse.getMessage());
+        log.debug("메일 발송 에러의 원인 : ", mse);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류로 인해 메일 발송이 실패했어요.");
     }
 }

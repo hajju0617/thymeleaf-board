@@ -28,6 +28,7 @@ public class SiteUser {
     @Column(columnDefinition = "integer default 1", nullable = false)
     private int status;
 
+
     private LocalDateTime createDate;
 
     private LocalDateTime modifyDate;
@@ -37,7 +38,6 @@ public class SiteUser {
     private UserRole role;
 
     public SiteUser() {
-
     }
 
     private SiteUser(String username, String password, String email) {
@@ -55,5 +55,9 @@ public class SiteUser {
 
     public static SiteUser create(UserDto userDto, String password) {
         return new SiteUser(userDto.getUsername(), password, userDto.getEmail());
+    }
+
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
     }
 }

@@ -8,6 +8,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         </div>
+        <!-- 회원가입 성공시 메시지 출력. -->
+        <div th:if="${msg}" class="alert alert-success alert-dismissible fade show">
+            <span th:text="${msg}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
         <!-- 페이지당 글 수 선택 -->
         <div class="d-flex justify-content-start mb-2">
             <form th:action="@{/article/list}" method="get" class="d-flex align-items-center">
@@ -38,7 +43,7 @@
                     <td>
                         <a th:href="@{|/article/detail/${article.id}|}" th:text="${article.title}"></a>
                         <!-- 제목 옆에 댓글 개수 표시. -->
-                        <span class="text-danger ms-2" th:if="${#lists.size(article.commentList) > 0}" th:text="${#lists.size(article.commentList)}"></span>
+                        <span class="text-danger ms-2" th:if="${#lists.size(article.commentList) > 0}" th:text="'[' + ${#lists.size(article.commentList)} + ']'"></span>
                     </td>
                     <!-- 작성일시 (#temporals.format(날짜 객체, 날짜 포맷)) -->
                     <td th:text="${#temporals.format(article.createDate, 'yyyy-MM-dd HH:mm')}"></td>

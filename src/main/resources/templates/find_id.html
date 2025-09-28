@@ -3,11 +3,11 @@
 <!-- 부모 템플릿(layout.html)의 layout:fragment="content" 부분에 삽입되도록 설정. -->
     <div layout:fragment="content" class="container my-3" style="max-width: 900px">
         <h4 class="my-3 border-bottom pb-2">아이디 찾기</h4>
-        <form th:action="@{/user/findId}" th:object="${findIdDto}" method="post">
+        <form th:action="@{/user/find-id}" th:object="${findIdDto}" method="post">
             <div th:replace="~{binding_result_errors :: bindingResultErrorsFragment}"></div>
             <div class="mb-3">
                 <label for="email" class="form-label">이메일</label>
-                <input type="email" th:field="*{email}" class="form-control" placeholder="가입하신 이메일 주소를 입력해 주세요.">
+                <input type="email" th:field="*{email}" class="form-control" placeholder="이메일 주소를 입력해 주세요.">
             </div>
             <button type="submit" class="btn btn-outline-primary w-100">아이디 찾기</button>
         </form>

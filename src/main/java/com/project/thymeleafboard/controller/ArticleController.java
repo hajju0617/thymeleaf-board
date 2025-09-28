@@ -42,7 +42,7 @@ public class ArticleController {
 
         @Param
         id : article(글) id
-        CommentDto : article_detail 뷰템플릿에서 CommentDto 객체가 필요함.
+        CommentDto : article_detail 뷰템플릿에서 CommentDto 객체가 필요함. (th:object)
     */
     @GetMapping("/detail/{id}")
     public String detail(Model model, @PathVariable("id") Integer id, CommentDto commentDto) {
@@ -55,7 +55,7 @@ public class ArticleController {
         글쓰기 뷰 메서드.
 
         @Param
-        ArticleDto : article_form 뷰템플릿에서 ArticleDto 객체가 필요함.
+        ArticleDto : article_form 뷰템플릿에서 ArticleDto 객체가 필요함. (th:object)
     */
     @GetMapping("/create")
     public String createArticle(ArticleDto articleDto) {

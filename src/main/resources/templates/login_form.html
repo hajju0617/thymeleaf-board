@@ -3,6 +3,11 @@
 <!-- 부모 템플릿(layout.html)의 layout:fragment="content" 부분에 삽입되도록 설정. -->
     <div layout:fragment="content" class="container my-3" style="max-width: 900px">
         <h4 class="my-3 border-bottom pb-2">로그인</h4>
+        <!-- 비밀번호 찾기(임시 비밀번호 발급)시 메시지 출력. -->
+        <div th:if="${msg}" class="alert alert-success alert-dismissible fade show">
+            <span th:text="${msg}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
         <form th:action="@{/user/login}" method="post">
             <!--  로그인에 실패할 경우 /user/login?error 처럼 error를 전달하는데 이를 활용하기 위해서. (로그인에 실패할 경우 시큐리티에 의해 로그인 페이지로 리다이렉트 됨.) -->
             <div th:if="${param.error}">
@@ -34,8 +39,8 @@
         </div>
 
         <div class="mt-3 d-flex justify-content-evenly">
-            <a th:href="@{/user/findId}" class="btn btn-outline-secondary btn-sm">아이디 찾기</a>
-            <a th:href="@{/user/findPw}" class="btn btn-outline-secondary btn-sm">비밀번호 찾기</a>
+            <a th:href="@{/user/find-id}" class="btn btn-outline-secondary btn-sm">아이디 찾기</a>
+            <a th:href="@{/user/find-pw}" class="btn btn-outline-secondary btn-sm">비밀번호 찾기</a>
         </div>
     </div>
 </html>

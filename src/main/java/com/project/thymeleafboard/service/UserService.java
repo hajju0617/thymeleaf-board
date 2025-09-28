@@ -16,7 +16,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public void createUser(UserDto userDto) {
-        SiteUser user = SiteUser.create(userDto, passwordEncoder.encode(userDto.getPassword()));
+        SiteUser user = SiteUser.create(userDto, encodePassword(userDto.getPassword()));
         userRepository.save(user);
     }
 
@@ -27,4 +27,16 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
+    public Optional<SiteUser> findByUsernameAndEmail(String username, String email) {
+        return userRepository.findByUsernameAndEmail(username, email);
+    }
+
+    public String encodePassword(String rawPassword) {
+        return passwordEncoder.encode(rawPassword);
+    }
+
+    public void changePassword(SiteUser siteUser, String tempPassword) {
+        siteUser.updatePassword(encodePassword(tempPassword));
+        userRepository.save(siteUser);
+    }
 }

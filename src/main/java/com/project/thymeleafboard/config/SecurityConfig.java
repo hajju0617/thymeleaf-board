@@ -1,5 +1,6 @@
-package com.project.thymeleafboard.security;
+package com.project.thymeleafboard.config;
 
+import com.project.thymeleafboard.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,13 +26,13 @@ public class SecurityConfig {
                 .formLogin((formLogin -> formLogin.loginPage("/user/login")
                                                   .defaultSuccessUrl("/")))
                 .logout((logout -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/user/logout"))
-                                         .logoutSuccessUrl("/article/list/logout")
+                                         .logoutSuccessUrl("/article/list?logout")
                                          .invalidateHttpSession(true)
                                          .deleteCookies("JSESSIONID", "remember-user")))
                 .rememberMe((rememberMe -> rememberMe.key("uniqueAndSecretKey")
                                                      .rememberMeParameter("remember-me")
                                                      .rememberMeCookieName("remember-user")
-                                                     .tokenValiditySeconds(60 * 60 * 24 * 7)
+                                                     .tokenValiditySeconds(60 * 60 * 24 * 7)        // 24h * 7 = 1주일.
                                                      .userDetailsService(userDetailsServiceImpl)));
         return httpSecurity.build();
     }
