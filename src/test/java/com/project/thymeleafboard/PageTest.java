@@ -18,7 +18,7 @@ public class PageTest {
             ArticleDto articleDto = new ArticleDto();
             articleDto.setTitle(String.format("임시 데이터 : %05d" ,i));
             articleDto.setContent("임시 데이터");
-            articleRepository.save(Article.create(articleDto));
+            articleRepository.save(Article.create(articleDto, null));
         }
     }
 }

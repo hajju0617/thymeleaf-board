@@ -5,6 +5,7 @@ import com.project.thymeleafboard.dto.VerificationMailDto;
 import com.project.thymeleafboard.service.MailService;
 import com.project.thymeleafboard.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import static com.project.thymeleafboard.common.GlobalConst.*;
 
 @RestController
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/email")
 public class MailController {
@@ -37,7 +39,7 @@ public class MailController {
                 return ResponseEntity.status(HttpStatus.OK).body(VERIFICATION_CODE_SENT);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("인증번호 전송시 에러가 발생 : ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(SERVER_ERROR);
         }
     }
@@ -57,7 +59,7 @@ public class MailController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(EMAIL_VERIFICATION_FAILED);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("인증번호 검증시 에러가 발생 : ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(SERVER_ERROR);
         }
     }

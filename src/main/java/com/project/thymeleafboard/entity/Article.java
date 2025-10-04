@@ -28,6 +28,9 @@ public class Article {
 
     private LocalDateTime modifyDate;
 
+    @ManyToOne
+    private SiteUser author;
+
     @Column(columnDefinition = "integer default 1", nullable = false)
     private int status;
 
@@ -49,15 +52,16 @@ public class Article {
 
     }
 
-    private Article(String title, String content) {
+    private Article(String title, String content, SiteUser author) {
         this.title = title;
         this.content = content;
+        this.author = author;
         this.createDate = LocalDateTime.now();
         this.status = SUCCESS;
     }
 
-    public static Article create(ArticleDto articleDto) {
-        return new Article(articleDto.getTitle(), articleDto.getContent());
+    public static Article create(ArticleDto articleDto, SiteUser siteUser) {
+        return new Article(articleDto.getTitle(), articleDto.getContent(), siteUser);
     }
 
     public void validateStatus(int status) {

@@ -73,9 +73,7 @@ public class MailService {
             helper.setText(content, true);
             javaMailSender.send(message);
         } catch (jakarta.mail.MessagingException e) {
-            log.error("Failed to send email to {}: {}", toMail, e.getMessage());
-            e.printStackTrace();
-            throw new MailSendException("Failed to send email", e);
+            throw new MailSendException("메일 전송 실패 : " + toMail, e);
         }
     }
     public boolean checkVerificationCode(String email, String authNum) {

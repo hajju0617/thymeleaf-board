@@ -30,8 +30,8 @@ public class Comment {
     @ManyToOne
     private Article article;
 
-//    @ManyToOne
-//    private SiteUser author;
+    @ManyToOne
+    private SiteUser author;
 //
 //    @ManyToMany
 //    private Set<SiteUser> voter;
@@ -40,15 +40,16 @@ public class Comment {
 
     }
 
-    private Comment(Article article, String content) {
+    private Comment(Article article, String content, SiteUser author) {
         this.content = content;
         this.article = article;
+        this.author = author;
         this.createDate = LocalDateTime.now();
         this.status = SUCCESS;
     }
 
-    public static Comment createComment(Article article, String content) {
-        return new Comment(article, content);
+    public static Comment createComment(Article article, String content, SiteUser author) {
+        return new Comment(article, content, author);
     }
 
     // 수정 테스트용 임시 메서드.

@@ -6,11 +6,17 @@
         <h2 class="border-bottom py-2 d-flex justify-content-between align-items-center">
             <!-- 좌측: 글 제목 -->
             <span th:text="${article.title}"></span>
-            <!-- 우측: 작성일시 -->
-            <span class="fs-6 text-dark d-flex align-items-center">
-                <strong class="me-1">작성일시:</strong>
-                <span th:text="${#temporals.format(article.createDate, 'yyyy-MM-dd HH:mm')}"></span>
-            </span>
+            <!-- 우측: 작성자, 작성일시 -->
+            <div class="d-flex align-items-center fs-6 text-dark">
+				<span class="me-3">
+					<strong>작성자:</strong>
+					<span th:text="${article.author != null ? article.author.username : '-'}"></span>
+				</span>
+                <span class="me-3">
+					<strong>작성일시:</strong>
+					<span th:text="${#temporals.format(article.createDate, 'yyyy-MM-dd HH:mm')}"></span>
+				</span>
+            </div>
         </h2>
 
         <div class="card my-3">
@@ -18,6 +24,9 @@
                 <div class="card-text" style="white-space: pre-line;" th:text="${article.content}"></div>
 
             </div>
+        </div>
+        <div class="text-end">
+            <a th:href="@{|/article/list?page=${page}|}" class="btn btn-outline-success my-3">목록</a>
         </div>
         <!-- 댓글 개수 표시. -->
         <h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(article.commentList)}개의 댓글이 있습니다.|"></h5>
@@ -27,6 +36,8 @@
                 <div class="card-text" style="white-space: pre-line;" th:text="${comment.content}"></div>
                     <!-- 댓글 작성일시 -->
                     <div class="text-end fs-6 text-dark">
+                        <strong>작성자:</strong>
+                        <span th:text="${comment.author != null ? comment.author.username : '-'}"></span>
                         <strong>작성일시:</strong>
                         <span th:text="${#temporals.format(comment.createDate, 'yyyy-MM-dd HH:mm')}"></span>
                     </div>
@@ -35,8 +46,11 @@
         <!-- 댓글 작성 -->
         <form th:action="@{|/comment/create/${article.id}|}" method="post" th:object="${commentDto}" class="my-3">
             <div th:replace="~{binding_result_errors :: bindingResultErrorsFragment}"></div>
-            <textarea placeholder="댓글을 작성하려면 로그인이 필요해요." th:field="*{content}" rows="5" class="form-control" style="resize: none"></textarea>
-            <button type="submit" class="btn btn-primary my-2">댓글 등록하기</button>
+            <textarea sec:authorize="isAnonymous()" disabled placeholder="댓글을 작성하려면 로그인이 필요해요." th:field="*{content}" rows="7" class="form-control" style="resize: none"></textarea>
+            <textarea sec:authorize="isAuthenticated()" th:field="*{content}" rows="7" class="form-control" style="resize: none"></textarea>
+            <div class="text-end">
+                <button type="submit" class="btn btn-outline-primary my-2">댓글 등록하기</button>
+            </div>
         </form>
     </div>
 </html>

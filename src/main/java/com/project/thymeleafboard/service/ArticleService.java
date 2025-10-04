@@ -2,6 +2,7 @@ package com.project.thymeleafboard.service;
 
 import com.project.thymeleafboard.dto.ArticleDto;
 import com.project.thymeleafboard.entity.Article;
+import com.project.thymeleafboard.entity.SiteUser;
 import com.project.thymeleafboard.exception.DataNotFoundException;
 import com.project.thymeleafboard.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,8 +44,8 @@ public class ArticleService {
         }
     }
 
-    public void createArticle(ArticleDto articleDto) {
-        Article article = Article.create(articleDto);
+    public void createArticle(ArticleDto articleDto, SiteUser siteUser) {
+        Article article = Article.create(articleDto, siteUser);
         articleRepository.save(article);
     }
 }

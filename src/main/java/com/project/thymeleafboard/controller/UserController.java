@@ -9,6 +9,7 @@ import com.project.thymeleafboard.service.MailService;
 import com.project.thymeleafboard.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.query.QueryTypeMismatchException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,6 +22,7 @@ import java.util.Optional;
 import static com.project.thymeleafboard.common.GlobalConst.*;
 
 @Controller
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/user")
 public class UserController {
@@ -43,7 +45,7 @@ public class UserController {
 
         @Param
         UserDto : 회원가입을 요청한 데이터.
-        BindingResult : @Valid 에노테이션의 검증 결과를 담고 있는 객체. (뷰템플릿에서 검증결과 에러를 출력)
+        BindingResult : 데이터 바인딩(Data Binding)과 검증(Validation) 과정에서 발생한 오류 정보를 담아둠. (오류 컨테이너 역할) & 뷰 템플릿에서 오류를 출력할 수 있음.
     */
     @PostMapping("/signup")
         public String signup(@Valid UserDto userDto, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
@@ -69,9 +71,10 @@ public class UserController {
         }
         try {
             userService.createUser(userDto);
-            redirectAttributes.addFlashAttribute("msg", SUCCESS_SIGNUP);
+            redirectAttributes.addFlashAttribute("successMsg", SUCCESS_SIGNUP);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn("회원가입시 에러 발생 : {}", e.getMessage());
+            log.warn("회원가입시 에러 원인 : ", e);
             bindingResult.reject("signupError", e.getMessage());
             return "signup_form";
         }
@@ -111,7 +114,7 @@ public class UserController {
 
         @Param
         findIdDto : 아이디 찾으려고 요청한 이메일 데이터.
-        bindingResult : @Valid 에노테이션의 검증 결과를 담고 있는 객체. (뷰템플릿에서 검증결과 에러를 출력)
+        BindingResult : 데이터 바인딩(Data Binding)과 검증(Validation) 과정에서 발생한 오류 정보를 담아둠. (오류 컨테이너 역할) & 뷰 템플릿에서 오류를 출력할 수 있음.
         model : 뷰템플릿에서 모델객체 활용.
     */
     @PostMapping("/find-id")
@@ -142,6 +145,11 @@ public class UserController {
 
     /*
         비밀번호 찾기(임시 비밀번호 발급) 처리 메서드.
+
+        @Param
+        findPwDto : 사용자 이메일과 아이디를 받음.
+        BindingResult : 데이터 바인딩(Data Binding)과 검증(Validation) 과정에서 발생한 오류 정보를 담아둠. (오류 컨테이너 역할) & 뷰 템플릿에서 오류를 출력할 수 있음.
+        RedirectAttributes : 리다이렉트(Redirect)시 데이터를 전달하는 역할.
     */
     @PostMapping("/find-pw")
     public String findPw(@Valid FindPwDto findPwDto, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
@@ -153,7 +161,7 @@ public class UserController {
             String tempPassword = CommonUtil.makeRandomPassword();
             mailService.sendTempPasswordMail(findPwDto.getEmail(), tempPassword);
             userService.changePassword(optionalSiteUser.get(), tempPassword);
-            redirectAttributes.addFlashAttribute("msg", SUCCESS_TEMP_PASSWORD_SENT_EMAIL);
+            redirectAttributes.addFlashAttribute("successMsg", SUCCESS_TEMP_PASSWORD_SENT_EMAIL);
         } else {
             bindingResult.reject("userNotFound", USER_NOT_FOUND_BY_USERNAME_AND_EMAIL);
             return "find_pw";

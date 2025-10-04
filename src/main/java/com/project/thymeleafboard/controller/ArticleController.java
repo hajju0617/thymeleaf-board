@@ -4,14 +4,17 @@ import com.project.thymeleafboard.dto.ArticleDto;
 import com.project.thymeleafboard.dto.CommentDto;
 import com.project.thymeleafboard.entity.Article;
 import com.project.thymeleafboard.service.ArticleService;
+import com.project.thymeleafboard.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.*;
 
 @RequestMapping("/article")
@@ -19,6 +22,7 @@ import java.util.*;
 @Controller
 public class ArticleController {
     private final ArticleService articleService;
+    private final UserService userService;
 
     /*
         전체 게시판 글 조회.
@@ -43,11 +47,13 @@ public class ArticleController {
         @Param
         id : article(글) id
         CommentDto : article_detail 뷰템플릿에서 CommentDto 객체가 필요함. (th:object)
+        page : 상세 조회 페이지에서 목록으로 되돌아갈 때 필요함.
     */
     @GetMapping("/detail/{id}")
-    public String detail(Model model, @PathVariable("id") Integer id, CommentDto commentDto) {
+    public String detail(Model model, @PathVariable("id") Integer id, @RequestParam(value = "page", defaultValue = "0") int page, CommentDto commentDto) {
         Article article = articleService.getArticle(id);
         model.addAttribute("article", article);
+        model.addAttribute("page", page);
         return "article_detail";
     }
 
@@ -57,6 +63,7 @@ public class ArticleController {
         @Param
         ArticleDto : article_form 뷰템플릿에서 ArticleDto 객체가 필요함. (th:object)
     */
+
     @GetMapping("/create")
     public String createArticle(ArticleDto articleDto) {
         return "/article_form";
@@ -67,15 +74,16 @@ public class ArticleController {
 
         @Param
         ArticleDto : 글 제목, 내용
-        BindingResult : @Valid 에노테이션의 검증 결과를 담고 있는 객체. (뷰템플릿에서 검증결과 에러를 출력)
+        BindingResult : 데이터 바인딩(Data Binding)과 검증(Validation) 과정에서 발생한 오류 정보를 담아둠. (오류 컨테이너 역할) & 뷰 템플릿에서 오류를 출력할 수 있음.
     */
+
     @PostMapping("/create")
-    public String createArticle(@Valid ArticleDto articleDto, BindingResult bindingResult) {
+    public String createArticle(@Valid ArticleDto articleDto, BindingResult bindingResult, Principal principal) {
         // BindingResult : @Valid 에노테이션의 검증 결과를 담고 있는 객체.
         if (bindingResult.hasErrors()) {
             return "/article_form";
         }
-        articleService.createArticle(articleDto);
+        articleService.createArticle(articleDto, userService.findByUsernameOrThrow(principal.getName()));
         return "redirect:/article/list";
     }
 }

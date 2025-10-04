@@ -9,8 +9,13 @@
             </div>
         </div>
         <!-- 회원가입 성공시 메시지 출력. -->
-        <div th:if="${msg}" class="alert alert-success alert-dismissible fade show">
-            <span th:text="${msg}"></span>
+        <div th:if="${successMsg}" class="alert alert-success alert-dismissible fade show">
+            <span th:text="${successMsg}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <!-- 인가 예외 발생시 메시지 출력. -->
+        <div th:if="${errorMsg}" class="alert alert-danger alert-dismissible fade show">
+            <span th:text="${errorMsg}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         <!-- 페이지당 글 수 선택 -->
@@ -27,29 +32,34 @@
             </form>
         </div>
 
-        <table class="table">
-            <thead class="table-dark">
-                <tr>
-                    <th>번호</th>
-                    <th>제목</th>
-                    <th>작성일시</th>
-                </tr>
+        <table class="table table-bordered align-middle">
+            <thead class="table-dark text-center">
+            <tr>
+                <th style="width: 5%;">번호</th>
+                <th style="width: 40%;" class="text-start">제목</th>
+                <th style="width: 20%;">작성자</th>
+                <th style="width: 20%;">작성일시</th>
+            </tr>
             </thead>
             <tbody>
-                <tr th:each="article, loop : ${articlePage}">
-                    <!-- 번호 -->
-                    <td th:text="${articlePage.getTotalElements() - (articlePage.number * articlePage.size) - loop.index}"></td>
-                    <!-- 제목 -->
-                    <td>
-                        <a th:href="@{|/article/detail/${article.id}|}" th:text="${article.title}"></a>
-                        <!-- 제목 옆에 댓글 개수 표시. -->
-                        <span class="text-danger ms-2" th:if="${#lists.size(article.commentList) > 0}" th:text="'[' + ${#lists.size(article.commentList)} + ']'"></span>
-                    </td>
-                    <!-- 작성일시 (#temporals.format(날짜 객체, 날짜 포맷)) -->
-                    <td th:text="${#temporals.format(article.createDate, 'yyyy-MM-dd HH:mm')}"></td>
-                </tr>
+            <tr th:each="article, loop : ${articlePage}">
+                <!-- 번호 -->
+                <td class="text-center" th:text="${articlePage.getTotalElements() - (articlePage.number * articlePage.size) - loop.index}"></td>
+                <!-- 제목 -->
+                <td class="text-start">
+                    <a th:href="@{|/article/detail/${article.id}?page=${articlePage.number}|}" th:text="${article.title}"></a>
+                    <!-- 제목 옆에 댓글 개수 표시. -->
+                    <span class="text-danger ms-2" th:if="${#lists.size(article.commentList) > 0}"
+                          th:text="'[' + ${#lists.size(article.commentList)} + ']'"></span>
+                </td>
+                <!-- 작성자 -->
+                <td class="text-center" th:text="${article.author != null ? article.author.username : '-'}"></td>
+                <!-- 작성일시 -->
+                <td class="text-center" th:text="${#temporals.format(article.createDate, 'yyyy-MM-dd HH:mm')}"></td>
+            </tr>
             </tbody>
         </table>
+
         <!-- 페이징 처리. -->
         <div th:if="${!articlePage.isEmpty()}">
             <div class="text-end">
