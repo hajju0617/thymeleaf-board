@@ -1,5 +1,11 @@
 <!-- layout.html을 상속 받도록 설정. -->
 <html layout:decorate="~{layout}">
+    <th:block layout:fragment="head">
+        <!--  csrf 토큰  -->
+        <meta name="_csrf" th:content="${_csrf.token}"/>
+        <!--  csrf 헤더  -->
+        <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    </th:block>
     <!-- 부모 템플릿(layout.html)의 layout:fragment="content" 부분에 삽입되도록 설정. -->
     <div layout:fragment="content" class="container my-3">
         <!-- 글의 제목 -->
@@ -8,14 +14,12 @@
             <span th:text="${article.title}"></span>
             <!-- 우측: 작성자, 작성일시 -->
             <div class="d-flex align-items-center fs-6 text-dark">
-				<span class="me-3">
-					<strong>작성자:</strong>
-					<span th:text="${article.author != null ? article.author.username : '-'}"></span>
-				</span>
-                <span class="me-3">
-					<strong>작성일시:</strong>
-					<span th:text="${#temporals.format(article.createDate, 'yyyy-MM-dd HH:mm')}"></span>
-				</span>
+                <strong class="me-2">작성자:</strong>
+				<span class="me-3" th:text="${article.author != null ? article.author.username : '-'}"></span>
+                <strong class="me-2">조회수:</strong>
+                <span class="me-3" th:text="${article.countView}"></span>
+                <strong class="me-2">작성일시:</strong>
+                <span th:text="${#temporals.format(article.createDate, 'yyyy-MM-dd HH:mm')}"></span>
             </div>
         </h2>
 
@@ -23,10 +27,20 @@
             <div class="card-body">
                 <div class="card-text" style="white-space: pre-line;" th:text="${article.content}"></div>
 
+                <div class="my-3">
+                    <div>
+                        <button class="btn vote-btn"
+                                th:data-id="${article.id}"
+                                data-type="article"
+                                th:classappend="${siteUser != null and #lists.contains(article.voter, siteUser)} ? 'btn-primary' : ' btn-outline-success'">
+                            추천
+                            <span class="badge rounded-pill bg-dark ms-1 vote-count" th:text="${#lists.size(article.voter)}"></span>
+                        </button>
+
+                    </div>
+                </div>
+
             </div>
-        </div>
-        <div class="text-end">
-            <a th:href="@{|/article/list?page=${page}|}" class="btn btn-outline-success my-3">목록</a>
         </div>
         <!-- 댓글 개수 표시. -->
         <h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(article.commentList)}개의 댓글이 있습니다.|"></h5>
@@ -35,12 +49,25 @@
             <div class="card-body">
                 <div class="card-text" style="white-space: pre-line;" th:text="${comment.content}"></div>
                     <!-- 댓글 작성일시 -->
-                    <div class="text-end fs-6 text-dark">
-                        <strong>작성자:</strong>
-                        <span th:text="${comment.author != null ? comment.author.username : '-'}"></span>
-                        <strong>작성일시:</strong>
+                    <div class="d-flex justify-content-end align-items-center fs-6 text-dark">
+                        <strong class="me-2">작성자:</strong>
+                        <span class="me-3" th:text="${comment.author != null ? comment.author.username : '-'}"></span>
+                        <strong class="me-2">작성일시:</strong>
                         <span th:text="${#temporals.format(comment.createDate, 'yyyy-MM-dd HH:mm')}"></span>
                     </div>
+
+                <div class="my-3">
+                    <div>
+                        <button class="btn vote-btn"
+                                th:data-id="${comment.id}"
+                                data-type="comment"
+                                th:classappend="${#lists.contains(comment.voter, siteUser)} ? 'btn-primary' : ' btn-outline-success'">
+                            추천
+                            <span class="badge rounded-pill bg-dark ms-1 vote-count" th:text="${#lists.size(comment.voter)}"></span>
+                        </button>
+                    </div>
+                </div>
+
             </div>
         </div>
         <!-- 댓글 작성 -->
@@ -48,9 +75,53 @@
             <div th:replace="~{binding_result_errors :: bindingResultErrorsFragment}"></div>
             <textarea sec:authorize="isAnonymous()" disabled placeholder="댓글을 작성하려면 로그인이 필요해요." th:field="*{content}" rows="7" class="form-control" style="resize: none"></textarea>
             <textarea sec:authorize="isAuthenticated()" th:field="*{content}" rows="7" class="form-control" style="resize: none"></textarea>
-            <div class="text-end">
+            <div class="d-flex justify-content-between">
+                <a th:href="@{|/article/list?page=${page}|}" class="btn btn-outline-success my-2">목록</a>
                 <button type="submit" class="btn btn-outline-primary my-2">댓글 등록하기</button>
             </div>
         </form>
     </div>
 </html>
+
+<script>
+    const csrfToken = document.querySelector("meta[name='_csrf']").content;
+    const csrfHeader = document.querySelector("meta[name='_csrf_header']").content;
+
+    document.querySelectorAll('.vote-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            const type = btn.dataset.type;
+            const url = `/${type}/vote/${id}`;
+            const countSpan = btn.querySelector('.vote-count')
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    [csrfHeader]: csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => {
+                if (res.status === 401) {
+                    return res.json().then(data => {
+                        alert(data.error)
+                        window.location.href = '/user/login';
+                    });
+                }
+                return res.text();
+            })
+            .then(voteCount => {
+                countSpan.textContent = voteCount;
+
+                if (btn.classList.contains('btn-primary')) {
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-outline-success');
+                } else {
+                    btn.classList.remove('btn-outline-success');
+                    btn.classList.add('btn-primary');
+                }
+            })
+            .catch(err => console.error(err));
+        })
+    })
+</script>

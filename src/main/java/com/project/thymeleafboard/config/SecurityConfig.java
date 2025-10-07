@@ -1,6 +1,7 @@
 package com.project.thymeleafboard.config;
 
-import com.project.thymeleafboard.security.UserDetailsServiceImpl;
+import com.project.thymeleafboard.security.CustomAuthenticationEntryPoint;
+import com.project.thymeleafboard.security.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,26 +18,29 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
-    private final UserDetailsServiceImpl userDetailsServiceImpl;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .authorizeHttpRequests(
                         (authorizeHttpRequests) -> authorizeHttpRequests
-                .requestMatchers("/article/create", "/comment/create/**").authenticated()
-                                                             .anyRequest().permitAll())
+                                .requestMatchers("/article/create", "/comment/create/**", "/article/vote/**", "/comment/vote/**").authenticated()
+                                .anyRequest().permitAll())
                 .formLogin((formLogin -> formLogin.loginPage("/user/login")
-                                                  .defaultSuccessUrl("/")))
+                        .defaultSuccessUrl("/", false)))
                 .logout((logout -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/user/logout"))
-                                         .logoutSuccessUrl("/article/list?logout")
-                                         .invalidateHttpSession(true)
-                                         .deleteCookies("JSESSIONID", "remember-user")))
+                        .logoutSuccessUrl("/article/list?logout")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID", "remember-user")))
                 .rememberMe((rememberMe -> rememberMe.key("uniqueAndSecretKey")
-                                                     .rememberMeParameter("remember-me")
-                                                     .rememberMeCookieName("remember-user")
-                                                     .tokenValiditySeconds(60 * 60 * 24 * 7)        // 24h * 7 = 1주일.
-                                                     .userDetailsService(userDetailsServiceImpl)));
+                        .rememberMeParameter("remember-me")
+                        .rememberMeCookieName("remember-user")
+                        .tokenValiditySeconds(60 * 60 * 24 * 7)        // 24h * 7 = 1주일.
+                        .userDetailsService(customUserDetailsService)))
+                .exceptionHandling((exception -> exception.authenticationEntryPoint(customAuthenticationEntryPoint)));
         return httpSecurity.build();
     }
 

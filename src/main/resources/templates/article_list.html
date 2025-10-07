@@ -36,8 +36,9 @@
             <thead class="table-dark text-center">
             <tr>
                 <th style="width: 5%;">번호</th>
-                <th style="width: 40%;" class="text-start">제목</th>
+                <th style="width: 40%;">제목</th>
                 <th style="width: 20%;">작성자</th>
+                <th style="width: 10%">조회수</th>
                 <th style="width: 20%;">작성일시</th>
             </tr>
             </thead>
@@ -54,6 +55,8 @@
                 </td>
                 <!-- 작성자 -->
                 <td class="text-center" th:text="${article.author != null ? article.author.username : '-'}"></td>
+                <!-- 조회수 -->
+                <td class="text-center" th:text="${article.countView}"></td>
                 <!-- 작성일시 -->
                 <td class="text-center" th:text="${#temporals.format(article.createDate, 'yyyy-MM-dd HH:mm')}"></td>
             </tr>

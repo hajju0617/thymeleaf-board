@@ -3,22 +3,22 @@ package com.project.thymeleafboard.controller;
 import com.project.thymeleafboard.dto.CommentDto;
 import com.project.thymeleafboard.entity.Article;
 import com.project.thymeleafboard.entity.Comment;
+import com.project.thymeleafboard.entity.SiteUser;
 import com.project.thymeleafboard.service.ArticleService;
 import com.project.thymeleafboard.service.CommentService;
 import com.project.thymeleafboard.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.Optional;
+
 
 @Controller
 @RequiredArgsConstructor
@@ -50,5 +50,15 @@ public class CommentController {
         }
         commentService.create(article, commentDto.getContent(), userService.findByUsernameOrThrow(principal.getName()));
         return "redirect:/article/detail/" + id;
+    }
+
+    @PostMapping("/vote/{id}")
+    @ResponseBody
+    public ResponseEntity<Integer> commentVote(@PathVariable("id") Integer id, Principal principal) {
+        Comment comment = commentService.getComment(id);
+        SiteUser siteUser = userService.findByUsernameOrThrow(principal.getName());
+        commentService.toggleVote(comment, siteUser);
+
+        return ResponseEntity.status(HttpStatus.OK).body(comment.getVoter().size());
     }
 }

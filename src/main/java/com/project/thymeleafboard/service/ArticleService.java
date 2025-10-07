@@ -12,6 +12,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.*;
 
 @Service
@@ -32,12 +34,14 @@ public class ArticleService {
         return articlePage;
     }
 
+    @Transactional
     public Article getArticle(Integer id) {
         Optional<Article> optionalArticle = articleRepository.findById(id);
 
         if (optionalArticle.isPresent()) {
             Article article = optionalArticle.get();
             article.validateStatus(article.getStatus());
+            article.incrementCountView();
             return article;
         } else {
             throw new DataNotFoundException("존재하지 않는 게시글 조회");
@@ -47,6 +51,15 @@ public class ArticleService {
     public void createArticle(ArticleDto articleDto, SiteUser siteUser) {
         Article article = Article.create(articleDto, siteUser);
         articleRepository.save(article);
+    }
+
+    @Transactional
+    public void toggleVote(Article article, SiteUser siteUser) {
+        if (article.getVoter().contains(siteUser)) {
+            article.getVoter().remove(siteUser);
+        } else {
+            article.getVoter().add(siteUser);
+        }
     }
 }
 

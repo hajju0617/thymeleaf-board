@@ -3,12 +3,17 @@ package com.project.thymeleafboard.controller;
 import com.project.thymeleafboard.dto.ArticleDto;
 import com.project.thymeleafboard.dto.CommentDto;
 import com.project.thymeleafboard.entity.Article;
+import com.project.thymeleafboard.entity.SiteUser;
 import com.project.thymeleafboard.service.ArticleService;
 import com.project.thymeleafboard.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.AuthenticationEntryPointFailureHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -48,12 +53,19 @@ public class ArticleController {
         id : article(글) id
         CommentDto : article_detail 뷰템플릿에서 CommentDto 객체가 필요함. (th:object)
         page : 상세 조회 페이지에서 목록으로 되돌아갈 때 필요함.
+        Principal : 뷰 페이지에서 article, comment 추천했는지 유무 판단.
     */
     @GetMapping("/detail/{id}")
-    public String detail(Model model, @PathVariable("id") Integer id, @RequestParam(value = "page", defaultValue = "0") int page, CommentDto commentDto) {
+    public String detail(Model model, @PathVariable("id") Integer id,
+                        @RequestParam(value = "page", defaultValue = "0") int page, CommentDto commentDto
+                        , Principal principal) {
         Article article = articleService.getArticle(id);
         model.addAttribute("article", article);
         model.addAttribute("page", page);
+        if (principal != null) {
+            SiteUser siteUser = userService.findByUsernameOrThrow(principal.getName());
+            model.addAttribute("siteUser", siteUser);
+        }
         return "article_detail";
     }
 
@@ -65,7 +77,7 @@ public class ArticleController {
     */
 
     @GetMapping("/create")
-    public String createArticle(ArticleDto articleDto) {
+    public String createArticle(ArticleDto articleDto)   {
         return "/article_form";
     }
 
@@ -77,6 +89,7 @@ public class ArticleController {
         BindingResult : 데이터 바인딩(Data Binding)과 검증(Validation) 과정에서 발생한 오류 정보를 담아둠. (오류 컨테이너 역할) & 뷰 템플릿에서 오류를 출력할 수 있음.
     */
 
+
     @PostMapping("/create")
     public String createArticle(@Valid ArticleDto articleDto, BindingResult bindingResult, Principal principal) {
         // BindingResult : @Valid 에노테이션의 검증 결과를 담고 있는 객체.
@@ -85,5 +98,15 @@ public class ArticleController {
         }
         articleService.createArticle(articleDto, userService.findByUsernameOrThrow(principal.getName()));
         return "redirect:/article/list";
+    }
+
+    @PostMapping("/vote/{id}")
+    @ResponseBody
+    public ResponseEntity<Integer> articleVote(@PathVariable("id") Integer id, Principal principal) {
+        Article article = articleService.getArticle(id);
+        SiteUser siteUser = userService.findByUsernameOrThrow(principal.getName());
+        articleService.toggleVote(article, siteUser);
+
+        return ResponseEntity.status(HttpStatus.OK).body(article.getVoter().size());
     }
 }

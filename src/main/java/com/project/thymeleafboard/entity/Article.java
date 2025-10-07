@@ -8,6 +8,7 @@ import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import static com.project.thymeleafboard.common.GlobalConst.SUCCESS;
 
@@ -39,14 +40,12 @@ public class Article {
     private List<Comment> commentList;
 
 
-//    @Column(columnDefinition = "integer default 0", nullable =  false)
-//    private int countView;
-//
-//    @ManyToOne
-//    private SiteUser author;
-//
-//    @ManyToMany
-//    private Set<SiteUser> voter;
+    @Column(columnDefinition = "integer default 0", nullable =  false)
+    private int countView;
+
+
+    @ManyToMany
+    private Set<SiteUser> voter;
 
     public Article() {
 
@@ -56,12 +55,17 @@ public class Article {
         this.title = title;
         this.content = content;
         this.author = author;
+        this.countView = 0;
         this.createDate = LocalDateTime.now();
         this.status = SUCCESS;
     }
 
     public static Article create(ArticleDto articleDto, SiteUser siteUser) {
         return new Article(articleDto.getTitle(), articleDto.getContent(), siteUser);
+    }
+
+    public void incrementCountView() {
+        this.countView++;
     }
 
     public void validateStatus(int status) {

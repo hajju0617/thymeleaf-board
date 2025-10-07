@@ -6,6 +6,7 @@ import lombok.Getter;
 
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import static com.project.thymeleafboard.common.GlobalConst.SUCCESS;
 
@@ -32,9 +33,9 @@ public class Comment {
 
     @ManyToOne
     private SiteUser author;
-//
-//    @ManyToMany
-//    private Set<SiteUser> voter;
+
+    @ManyToMany
+    private Set<SiteUser> voter;
 
     public Comment() {
 
