@@ -3,12 +3,12 @@
 <!-- 부모 템플릿(layout.html)의 layout:fragment="content" 부분에 삽입되도록 설정. -->
     <div layout:fragment="content" class="container my-3" style="max-width: 900px">
         <h4 class="my-3 border-bottom pb-2">로그인</h4>
-        <!-- 비밀번호 찾기(임시 비밀번호 발급)시 메시지 출력. -->
+        <!-- RedirectAttributes의 successMsg 메시지 출력. -->
         <div th:if="${successMsg}" class="alert alert-success alert-dismissible fade show">
             <span th:text="${successMsg}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <!-- UserNotFoundException 발생시 메시지 출력. -->
+        <!-- RedirectAttributes의 errorMsg 메시지 출력. -->
         <div th:if="${errorMsg}" class="alert alert-danger alert-dismissible fade show">
             <span th:text="${errorMsg}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>

@@ -76,6 +76,8 @@ public class MailService {
             throw new MailSendException("메일 전송 실패 : " + toMail, e);
         }
     }
+
+    @Transactional
     public boolean checkVerificationCode(String email, String authNum) {
         mailRepository.deleteExpiredAuthNums(LocalDateTime.now().minusMinutes(2));  // 현재 시각에서 2분을 뺀 시각
         Optional<Mail> optionalMail = mailRepository.findByEmailAndAuthNum(email, authNum);

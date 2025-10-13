@@ -7,8 +7,6 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-import static com.project.thymeleafboard.common.GlobalConst.SUCCESS;
-
 @Entity
 @Getter
 public class SiteUser {
@@ -25,10 +23,6 @@ public class SiteUser {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(columnDefinition = "integer default 1", nullable = false)
-    private int status;
-
-
     private LocalDateTime createDate;
 
     private LocalDateTime modifyDate;
@@ -44,7 +38,6 @@ public class SiteUser {
         this.username = username;
         this.password = password;
         this.email = email;
-        this.status = SUCCESS;
         this.createDate = LocalDateTime.now();
         if (!username.equals("admin")) {
             this.role = UserRole.USER;

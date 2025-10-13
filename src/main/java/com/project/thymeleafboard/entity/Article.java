@@ -1,16 +1,12 @@
 package com.project.thymeleafboard.entity;
 
 import com.project.thymeleafboard.dto.ArticleDto;
-import com.project.thymeleafboard.exception.DeletedArticleException;
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
-
-import static com.project.thymeleafboard.common.GlobalConst.SUCCESS;
 
 @Entity
 @Getter
@@ -32,10 +28,7 @@ public class Article {
     @ManyToOne
     private SiteUser author;
 
-    @Column(columnDefinition = "integer default 1", nullable = false)
-    private int status;
-
-    // cascade = CascadeType.REMOVE : 참고 무결성 제약조건을 지키기 위함.
+    // cascade = CascadeType.REMOVE : 참조 무결성 제약조건을 지키기 위함.
     @OneToMany(mappedBy = "article", cascade = CascadeType.REMOVE)
     private List<Comment> commentList;
 
@@ -57,7 +50,6 @@ public class Article {
         this.author = author;
         this.countView = 0;
         this.createDate = LocalDateTime.now();
-        this.status = SUCCESS;
     }
 
     public static Article create(ArticleDto articleDto, SiteUser siteUser) {
@@ -66,12 +58,6 @@ public class Article {
 
     public void incrementCountView() {
         this.countView++;
-    }
-
-    public void validateStatus(int status) {
-        if (status == -1) {
-            throw new DeletedArticleException("삭제된 게시글 조회");
-        }
     }
 
 

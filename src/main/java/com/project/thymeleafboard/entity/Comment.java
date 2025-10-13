@@ -8,7 +8,6 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-import static com.project.thymeleafboard.common.GlobalConst.SUCCESS;
 
 
 @Entity
@@ -25,8 +24,6 @@ public class Comment {
 
     private LocalDateTime modifyDate;
 
-    @Column(columnDefinition = "integer default 1", nullable = false)
-    private int status;
 
     @ManyToOne
     private Article article;
@@ -46,7 +43,6 @@ public class Comment {
         this.article = article;
         this.author = author;
         this.createDate = LocalDateTime.now();
-        this.status = SUCCESS;
     }
 
     public static Comment createComment(Article article, String content, SiteUser author) {

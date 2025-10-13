@@ -36,7 +36,7 @@ public class MailController {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(EMAIL_ALREADY_REGISTERED);
             } else {
                 mailService.sendVerificationMail(sendMailDto);
-                return ResponseEntity.status(HttpStatus.OK).body(VERIFICATION_CODE_SENT);
+                return ResponseEntity.status(HttpStatus.OK).body(SUCCESS_VERIFICATION_CODE_SENT);
             }
         } catch (Exception e) {
             log.warn("인증번호 전송시 에러가 발생 : ", e);
@@ -54,9 +54,9 @@ public class MailController {
     public ResponseEntity<String> checkVerificationCode(@RequestBody VerificationMailDto verificationMailDto) {
         try {
             if (mailService.checkVerificationCode(verificationMailDto.getEmail(), verificationMailDto.getAuthNum())) {
-                return ResponseEntity.status(HttpStatus.OK).body(EMAIL_VERIFICATION_SUCCESS);
+                return ResponseEntity.status(HttpStatus.OK).body(SUCCESS_EMAIL_VERIFICATION);
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(EMAIL_VERIFICATION_FAILED);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ERROR_EMAIL_VERIFICATION);
             }
         } catch (Exception e) {
             log.warn("인증번호 검증시 에러가 발생 : ", e);

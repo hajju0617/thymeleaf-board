@@ -10,13 +10,13 @@ import com.project.thymeleafboard.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.query.QueryTypeMismatchException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.security.Principal;
 import java.util.Optional;
 
 import static com.project.thymeleafboard.common.GlobalConst.*;
@@ -34,9 +34,11 @@ public class UserController {
 
         @Param
         userDto : signup_form 뷰 페이지에서 th:object 에서 사용.
+        principal : 로그인이 되어 있는지 확인.
     */
     @GetMapping("/signup")
-    public String signup(UserDto userDto) {
+    public String signup(UserDto userDto, Principal principal) {
+        userService.isLoggedIn(principal);
         return "signup_form";
     }
 
@@ -46,14 +48,15 @@ public class UserController {
         @Param
         UserDto : 회원가입을 요청한 데이터.
         BindingResult : 데이터 바인딩(Data Binding)과 검증(Validation) 과정에서 발생한 오류 정보를 담아둠. (오류 컨테이너 역할) & 뷰 템플릿에서 오류를 출력할 수 있음.
+        RedirectAttributes : 리다이렉트(Redirect)시 데이터를 전달하는 역할.
     */
     @PostMapping("/signup")
-        public String signup(@Valid UserDto userDto, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    public String signup(@Valid UserDto userDto, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             return "signup_form";
         }
         if (!mailService.checkVerificationCode(userDto.getEmail(), userDto.getAuthNum())) {
-            bindingResult.rejectValue("authNum", "invalidAuthNum", EMAIL_VERIFICATION_FAILED);
+            bindingResult.rejectValue("authNum", "invalidAuthNum", ERROR_EMAIL_VERIFICATION);
             return "signup_form";
         }
         if (!userDto.getPassword().equals(userDto.getPasswordConfirm())) {
@@ -73,8 +76,7 @@ public class UserController {
             userService.createUser(userDto);
             redirectAttributes.addFlashAttribute("successMsg", SUCCESS_SIGNUP);
         } catch (Exception e) {
-            log.warn("회원가입시 에러 발생 : {}", e.getMessage());
-            log.warn("회원가입시 에러 원인 : ", e);
+            log.warn("회원가입시 에러 발생 : msg = {}, cause = ", e.getMessage(), e);
             bindingResult.reject("signupError", e.getMessage());
             return "signup_form";
         }
@@ -83,6 +85,9 @@ public class UserController {
 
     /*
         아이디 중복체크 처리 메서드
+
+        @Param
+        username : 중복 체크할 아이디.
     */
     @GetMapping("/check-username")
     @ResponseBody
@@ -92,9 +97,13 @@ public class UserController {
 
     /*
         로그인 뷰 페이지 메서드.
+
+        @Param
+        principal : 로그인이 되어 있는지 확인.
     */
     @GetMapping("/login")
-    public String login() {
+    public String login(Principal principal) {
+        userService.isLoggedIn(principal);
         return "login_form";
     }
 
@@ -163,7 +172,7 @@ public class UserController {
             userService.changePassword(optionalSiteUser.get(), tempPassword);
             redirectAttributes.addFlashAttribute("successMsg", SUCCESS_TEMP_PASSWORD_SENT_EMAIL);
         } else {
-            bindingResult.reject("userNotFound", USER_NOT_FOUND_BY_USERNAME_AND_EMAIL);
+            bindingResult.reject("userNotFound", ERROR_USER_NOT_FOUND_BY_USERNAME_AND_EMAIL);
             return "find_pw";
         }
         return "redirect:/user/login";

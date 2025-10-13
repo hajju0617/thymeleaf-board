@@ -4,6 +4,8 @@ import com.project.thymeleafboard.dto.ArticleDto;
 import com.project.thymeleafboard.entity.Article;
 import com.project.thymeleafboard.entity.SiteUser;
 import com.project.thymeleafboard.exception.DataNotFoundException;
+import com.project.thymeleafboard.exception.InvalidPageException;
+import com.project.thymeleafboard.exception.InvalidValueException;
 import com.project.thymeleafboard.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,20 +18,23 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+import static com.project.thymeleafboard.common.GlobalConst.*;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ArticleService {
     private final ArticleRepository articleRepository;
+    private static final Set<Integer> ALLOWED_SIZES = Set.of(10, 20, 40, 50);
 
-    public Page<Article> getList(int page, int size) {
+    public Page<Article> getArticleList(int page, int size) {
         List<Sort.Order> orderList = new ArrayList<>();
         orderList.add(Sort.Order.desc("createDate"));
         Pageable pageable = PageRequest.of(page, size, Sort.by(orderList));
-        Page<Article> articlePage = articleRepository.findAllActiveArticle(pageable);
+        Page<Article> articlePage = articleRepository.findAll(pageable);
         if (articlePage.getContent().isEmpty()) {
             log.info("size : {}, page : {}", size, page);
-            throw new DataNotFoundException("존재하지 않는 페이지 요청.");
+            throw new InvalidPageException(ERROR_PAGE_OUT_OF_ARTICLE_RANGE);
         }
         return articlePage;
     }
@@ -40,11 +45,10 @@ public class ArticleService {
 
         if (optionalArticle.isPresent()) {
             Article article = optionalArticle.get();
-            article.validateStatus(article.getStatus());
             article.incrementCountView();
             return article;
         } else {
-            throw new DataNotFoundException("존재하지 않는 게시글 조회");
+            throw new DataNotFoundException(ERROR_ARTICLE_NOT_FOUND);
         }
     }
 
@@ -59,6 +63,18 @@ public class ArticleService {
             article.getVoter().remove(siteUser);
         } else {
             article.getVoter().add(siteUser);
+        }
+    }
+
+    public void validateArticlePageNum(int page) {
+        if (page < 0) {
+            throw new InvalidPageException(ERROR_NEGATIVE_PAGE_NUMBER);
+        }
+    }
+
+    public void validateArticlePageSize(int size) {
+        if (!ALLOWED_SIZES.contains(size)) {
+            throw new InvalidValueException(ERROR_INVALID_LIST_SIZE);
         }
     }
 }
