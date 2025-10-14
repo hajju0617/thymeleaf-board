@@ -23,15 +23,15 @@ public class PageTest {
     @Autowired
     private UserService userService;
 
-    @Test
-    void createData() {
-        for (int i = 0; i < 100; i++) {
-            ArticleDto articleDto = new ArticleDto();
-            articleDto.setTitle(String.format("임시 데이터 : %05d" ,i));
-            articleDto.setContent("임시 데이터");
-            articleRepository.save(Article.create(articleDto, null));
-        }
-    }
+//    @Test
+//    void createData() {
+//        for (int i = 0; i < 100; i++) {
+//            ArticleDto articleDto = new ArticleDto();
+//            articleDto.setTitle(String.format("임시 데이터 : %05d" ,i));
+//            articleDto.setContent("임시 데이터");
+//            articleRepository.save(Article.create(articleDto, null));
+//        }
+//    }
 
     @Test
     void createCommentData() {

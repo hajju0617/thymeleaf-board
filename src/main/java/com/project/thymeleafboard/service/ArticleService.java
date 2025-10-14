@@ -6,6 +6,7 @@ import com.project.thymeleafboard.entity.SiteUser;
 import com.project.thymeleafboard.exception.DataNotFoundException;
 import com.project.thymeleafboard.exception.InvalidPageException;
 import com.project.thymeleafboard.exception.InvalidValueException;
+import com.project.thymeleafboard.exception.ResourcePermissionDeniedException;
 import com.project.thymeleafboard.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.*;
 
 import static com.project.thymeleafboard.common.GlobalConst.*;
@@ -39,8 +41,19 @@ public class ArticleService {
         return articlePage;
     }
 
-    @Transactional
+
     public Article getArticle(Integer id) {
+        Optional<Article> optionalArticle = articleRepository.findById(id);
+
+        if (optionalArticle.isPresent()) {
+            return optionalArticle.get();
+        } else {
+            throw new DataNotFoundException(ERROR_ARTICLE_NOT_FOUND);
+        }
+    }
+
+    @Transactional
+    public Article getArticleDetail(Integer id) {
         Optional<Article> optionalArticle = articleRepository.findById(id);
 
         if (optionalArticle.isPresent()) {
@@ -58,12 +71,24 @@ public class ArticleService {
     }
 
     @Transactional
-    public void toggleVote(Article article, SiteUser siteUser) {
+    public void toggleVoteArticle(Article article, SiteUser siteUser) {
+        validateNotSelfVote(article, siteUser);
         if (article.getVoter().contains(siteUser)) {
             article.getVoter().remove(siteUser);
         } else {
             article.getVoter().add(siteUser);
         }
+    }
+
+    private void validateNotSelfVote(Article article, SiteUser siteUser) {
+        if (article.getAuthor().getUsername().equals(siteUser.getUsername())) {
+            throw new ResourcePermissionDeniedException(ERROR_SELF_VOTE, article.getId());
+        }
+    }
+
+    @Transactional
+    public void modifyArticle(Article article, ArticleDto articleDto) {
+        article.modify(article, articleDto);
     }
 
     public void validateArticlePageNum(int page) {
@@ -75,6 +100,12 @@ public class ArticleService {
     public void validateArticlePageSize(int size) {
         if (!ALLOWED_SIZES.contains(size)) {
             throw new InvalidValueException(ERROR_INVALID_LIST_SIZE);
+        }
+    }
+
+    public void verifyArticleAuthor(Article article, Principal principal, Integer id) {
+        if (!article.getAuthor().getUsername().equals(principal.getName())) {
+            throw new ResourcePermissionDeniedException(ERROR_SELF_MODIFY, id);
         }
     }
 }

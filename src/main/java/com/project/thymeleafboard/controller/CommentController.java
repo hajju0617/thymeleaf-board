@@ -11,13 +11,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+
+import static com.project.thymeleafboard.common.GlobalConst.ERROR_NO_CHANGE_DETECTED;
 
 
 @Controller
@@ -52,6 +53,14 @@ public class CommentController {
         return "redirect:/article/detail/" + id;
     }
 
+    /*
+        댓글 추천 처리 메서드.
+
+        @Param
+        id : 댓글(comment) id
+        principal : Principal : 현재 인증된 사용자(로그인한 사용자) 객체.
+    */
+
     @PostMapping("/vote/{id}")
     @ResponseBody
     public ResponseEntity<Integer> commentVote(@PathVariable("id") Integer id, Principal principal) {
@@ -60,5 +69,30 @@ public class CommentController {
         commentService.toggleVote(comment, siteUser);
 
         return ResponseEntity.status(HttpStatus.OK).body(comment.getVoter().size());
+    }
+
+    @GetMapping("/modify/{id}")
+    public String modifyComment(Model model, @PathVariable(value = "id") Integer id, Principal principal) {
+        Comment comment = commentService.getComment(id);
+        commentService.verifyCommentAuthor(comment, principal);
+        CommentDto commentDto = CommentDto.fromEntity(comment);
+        model.addAttribute("commentDto", commentDto);
+        return "comment_form";
+    }
+
+    @PostMapping("/modify/{id}")
+    public String modifyComment(@Valid CommentDto commentDto, BindingResult bindingResult,
+                                @PathVariable(value = "id") Integer id, Principal principal) {
+        if (bindingResult.hasErrors()) {
+            return "comment_form";
+        }
+        Comment comment = commentService.getComment(id);
+        commentService.verifyCommentAuthor(comment, principal);
+        if (comment.getContent().equals(commentDto.getContent())) {
+            bindingResult.reject("noChangeDetected", ERROR_NO_CHANGE_DETECTED);
+            return "comment_form";
+        }
+        commentService.modifyComment(comment, commentDto);
+        return "redirect:/article/detail/" + comment.getArticle().getId();
     }
 }

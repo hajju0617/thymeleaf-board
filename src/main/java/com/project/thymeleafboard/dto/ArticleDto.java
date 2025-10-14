@@ -1,6 +1,6 @@
 package com.project.thymeleafboard.dto;
 
-import com.project.thymeleafboard.common.GlobalConst;
+import com.project.thymeleafboard.entity.Article;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -18,4 +18,17 @@ public class ArticleDto {
 
     @NotBlank(message = CONTENT_REQUIRED)
     private String content;
+
+    public ArticleDto() {
+
+    }
+
+    private ArticleDto(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
+
+    public static ArticleDto fromEntity(Article article) {
+        return new ArticleDto(article.getTitle(), article.getContent());
+    }
 }

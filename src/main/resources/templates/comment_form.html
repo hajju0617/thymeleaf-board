@@ -1,0 +1,20 @@
+<!-- layout.html을 상속 받도록 설정. -->
+<html layout:decorate="~{layout}">
+<!-- 부모 템플릿(layout.html)의 layout:fragment="content" 부분에 삽입되도록 설정. -->
+<div layout:fragment="content" class="container my-3">
+    <h4 class="my-3 border-bottom pb-2">댓글 수정</h4>
+    <form method="post" th:object="${commentDto}">
+        <!-- form 태그의 action 속성이 없어서 CSRF 수동으로 추가. 요청시 데이터와 함께 서버로 전달됨. -->
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <!-- {뷰 템플릿 파일명 :: 해당 템플릿 안에 정의된 프레그먼트 이름 -->
+        <div th:replace="~{binding_result_errors :: bindingResultErrorsFragment}"></div>
+        <div class="mb-3">
+            <label for="content" class="form-label">내용</label>
+            <textarea placeholder="내용을 입력해 주세요." th:field="*{content}" class="form-control" rows="10" style="resize: none"></textarea>
+        </div>
+        <div class="text-end">
+            <button type="submit" class="btn btn-outline-primary my-2">수정하기</button>
+        </div>
+    </form>
+</div>
+</html>

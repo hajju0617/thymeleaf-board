@@ -14,14 +14,14 @@ import java.util.Enumeration;
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
     private final String LOGIN_PAGE = "/user/login";
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        String ajaxHeader = request.getHeader("X-Requested-With");
+    public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException authException) throws IOException, ServletException {
+        String ajaxHeader = httpServletRequest.getHeader("X-Requested-With");
         if ("XMLHttpRequest".equals(ajaxHeader)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);                // 상태코드 401.
-            response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("{\"error\": \"로그인이 필요해요.\"}");     // 큰따옴표(")를 이스케이프 처리.
+            httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);                // 상태코드 401.
+            httpServletResponse.setContentType("application/json;charset=UTF-8");
+            httpServletResponse.getWriter().write("{\"error\": \"로그인이 필요해요.\"}");     // 큰따옴표(")를 이스케이프 처리.
         } else {
-            response.sendRedirect(request.getContextPath() + LOGIN_PAGE);
+            httpServletResponse.sendRedirect(httpServletRequest.getContextPath() + LOGIN_PAGE);
         }
     }
 }

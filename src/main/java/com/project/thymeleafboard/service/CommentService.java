@@ -1,10 +1,13 @@
 package com.project.thymeleafboard.service;
 
+import com.project.thymeleafboard.dto.ArticleDto;
+import com.project.thymeleafboard.dto.CommentDto;
 import com.project.thymeleafboard.entity.Article;
 import com.project.thymeleafboard.entity.Comment;
 import com.project.thymeleafboard.entity.SiteUser;
 import com.project.thymeleafboard.exception.DataNotFoundException;
 import com.project.thymeleafboard.exception.InvalidPageException;
+import com.project.thymeleafboard.exception.ResourcePermissionDeniedException;
 import com.project.thymeleafboard.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -47,11 +51,23 @@ public class CommentService {
     }
 
     @Transactional
-    public void toggleVote(Comment Comment, SiteUser siteUser) {
-        if (Comment.getVoter().contains(siteUser)) {
-            Comment.getVoter().remove(siteUser);
+    public void toggleVote(Comment comment, SiteUser siteUser) {
+        validateNotSelfVote(comment, siteUser);
+        if (comment.getVoter().contains(siteUser)) {
+            comment.getVoter().remove(siteUser);
         } else {
-            Comment.getVoter().add(siteUser);
+            comment.getVoter().add(siteUser);
+        }
+    }
+
+    @Transactional
+    public void modifyComment(Comment comment, CommentDto commentDto) {
+        comment.modify(commentDto);
+    }
+
+    private void validateNotSelfVote(Comment Comment, SiteUser siteUser) {
+        if (Comment.getAuthor().getUsername().equals(siteUser.getUsername())) {
+            throw new ResourcePermissionDeniedException(ERROR_SELF_VOTE, Comment.getArticle().getId());
         }
     }
 
@@ -64,12 +80,16 @@ public class CommentService {
             throw new InvalidPageException(ERROR_NEGATIVE_PAGE_NUMBER, id, page);
         }
     }
-
     private void isPageOutOfRange(Article article, int commentPage, Integer id, int page) {
         int totalPages = (int) Math.ceil(article.getCommentList().size() / (double) commentPageSize);
         // totalPages > 0 조건을 넣은 이유 : 댓글이 0개인 게시글의 경우 예외가 발생되면 안됨.
         if (totalPages > 0 && commentPage >= totalPages) {
             throw new InvalidPageException(ERROR_PAGE_OUT_OF_COMMENT_RANGE, id, page);
+        }
+    }
+    public void verifyCommentAuthor(Comment comment, Principal principal) {
+        if (!comment.getAuthor().getUsername().equals(principal.getName())) {
+            throw new ResourcePermissionDeniedException(ERROR_SELF_MODIFY);
         }
     }
 }

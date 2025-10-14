@@ -1,5 +1,6 @@
 package com.project.thymeleafboard.entity;
 
+import com.project.thymeleafboard.dto.CommentDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,7 +36,6 @@ public class Comment {
     private Set<SiteUser> voter;
 
     public Comment() {
-
     }
 
     private Comment(Article article, String content, SiteUser author) {
@@ -49,7 +49,14 @@ public class Comment {
         return new Comment(article, content, author);
     }
 
-    // 수정 테스트용 임시 메서드.
+    public void modify(CommentDto commentDto) {
+        this.content = commentDto.getContent();
+        this.modifyDate = LocalDateTime.now();
+    }
+
+
+
+    // 테스트코드에서 수정용 임시 메서드.
     public void patchCommentTest(Comment comment) {
         if (comment.getContent() != null) {
             this.content = comment.getContent();

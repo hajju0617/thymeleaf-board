@@ -27,7 +27,9 @@ public class SecurityConfig {
         httpSecurity
                 .authorizeHttpRequests(
                         (authorizeHttpRequests) -> authorizeHttpRequests
-                                .requestMatchers("/article/create", "/comment/create/**", "/article/vote/**", "/comment/vote/**").authenticated()
+                                .requestMatchers("/article/create", "/comment/create/**",
+                                                 "/article/vote/**", "/comment/vote/**",
+                                                 "/article/modify/**", "comment/modify/**").authenticated()
                                 .anyRequest().permitAll())
                 .formLogin((formLogin -> formLogin.loginPage("/user/login")
                         .defaultSuccessUrl("/", false)))

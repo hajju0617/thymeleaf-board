@@ -19,8 +19,8 @@ public class MainController {
         return "redirect:/article/list";
     }
 
-    @GetMapping("/**")
-    public String handleUnknownUrls() {
-        return "redirect:/article/list";
-    }
+//    @GetMapping("/**")
+//    public String handleUnknownUrls() {
+//        return "redirect:/article/list";
+//    }
 }

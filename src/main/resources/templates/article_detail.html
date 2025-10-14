@@ -13,20 +13,30 @@
             <span th:text="${errorMsg}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <!-- 글의 제목 -->
-        <h2 class="border-bottom py-2 d-flex justify-content-between align-items-center">
-            <!-- 좌측: 글 제목 -->
-            <span th:text="${article.title}"></span>
-            <!-- 우측: 작성자, 작성일시 -->
-            <div class="d-flex align-items-center fs-6 text-dark">
-                <strong class="me-2">작성자:</strong>
-				<span class="me-3" th:text="${article.author != null ? article.author.username : '-'}"></span>
-                <strong class="me-2">조회수:</strong>
-                <span class="me-3" th:text="${article.countView}"></span>
-                <strong class="me-2">작성일시:</strong>
-                <span th:text="${#temporals.format(article.createDate, 'yyyy-MM-dd HH:mm')}"></span>
+
+        <div class="card my-4 shadow-sm">
+            <div class="card-body">
+                <div class="p-3 bg-light rounded border mb-3">
+                    <span class="fs-5 fw-bold" th:text="${article.title}"></span>
+                </div>
+                <table class="table table-bordered text-center align-middle mb-2" style="table-layout: fixed;">
+                    <tbody>
+                    <tr>
+                        <th class="bg-light" style="width: 25%;">작성자</th>
+                        <td th:text="${article.author != null ? article.author.username : '-'}"></td>
+                        <th class="bg-light" style="width: 25%;">조회수</th>
+                        <td th:text="${article.countView}"></td>
+                    </tr>
+                    <tr>
+                        <th class="bg-light">작성일시</th>
+                        <td th:text="${#temporals.format(article.createDate, 'yyyy-MM-dd HH:mm')}"></td>
+                        <th class="bg-light">수정일시</th>
+                        <td th:text="${article.modifyDate != null ? #temporals.format(article.modifyDate, 'yyyy-MM-dd HH:mm') : '-'}"></td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
-        </h2>
+        </div>
 
         <div class="card my-3">
             <div class="card-body">
@@ -41,6 +51,9 @@
                             추천
                             <span class="badge rounded-pill bg-dark ms-1 vote-count" th:text="${#lists.size(article.voter)}"></span>
                         </button>
+                        <a th:href="@{|/article/modify/${article.id}|}" class="btn btn-outline-success"
+                           sec:authorize="isAuthenticated()" th:if="${article.author != null and #authentication.getPrincipal().getUsername() == article.getAuthor().username}"
+                           th:text="수정"></a>
                     </div>
                 </div>
 
@@ -56,13 +69,18 @@
 
                 <div class="mt-auto pt-2">
                     <div class="d-flex justify-content-between align-items-center">
-                        <button class="btn vote-btn"
-                                th:data-id="${comment.id}"
-                                data-type="comment"
-                                th:classappend="${#lists.contains(comment.voter, siteUser)} ? 'btn-primary' : ' btn-outline-success'">
-                            추천
-                            <span class="badge rounded-pill bg-dark ms-1 vote-count" th:text="${#lists.size(comment.voter)}"></span>
-                        </button>
+                        <div class="d-flex align-items-center">
+                            <button class="btn vote-btn"
+                                    th:data-id="${comment.id}"
+                                    data-type="comment"
+                                    th:classappend="${#lists.contains(comment.voter, siteUser)} ? 'btn-primary' : ' btn-outline-success'">
+                                추천
+                                <span class="badge rounded-pill bg-dark ms-1 vote-count" th:text="${#lists.size(comment.voter)}"></span>
+                            </button>
+                            <a th:href="@{|/comment/modify/${comment.id}|}" class="btn btn-outline-success ms-1"
+                               sec:authorize="isAuthenticated()" th:if="${article.author != null and #authentication.getPrincipal().getUsername() == comment.getAuthor().username}"
+                               th:text="수정"></a>
+                        </div>
                         <!-- 댓글 작성일시 -->
                         <div class="d-flex align-items-center fs-6 text-dark">
                             <strong class="me-2">작성자:</strong>
@@ -139,6 +157,12 @@
                     return res.json().then(data => {
                         alert(data.error)
                         window.location.href = '/user/login';
+                        throw new Error("Unauthorized");
+                    });
+                } else if (res.status === 403) {
+                    return res.text().then(data => {
+                        alert(data)
+                        throw new Error("Forbidden");
                     });
                 }
                 return res.text();

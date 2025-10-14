@@ -41,7 +41,6 @@ public class Article {
     private Set<SiteUser> voter;
 
     public Article() {
-
     }
 
     private Article(String title, String content, SiteUser author) {
@@ -60,8 +59,20 @@ public class Article {
         this.countView++;
     }
 
+    public void modify(Article article, ArticleDto articleDto) {
+        if (!article.getTitle().equals(articleDto.getTitle())) {
+            this.title = articleDto.getTitle();
+        }
+        if (!article.getContent().equals(articleDto.getContent())) {
+            this.content = articleDto.getContent();
+        }
+        // 컨트롤러에서 먼저 검증했으므로 제목, 내용 중 하나는 무조건 바뀌었음.
+        this.modifyDate = LocalDateTime.now();
+    }
 
-    // 수정 테스트용 임시 메서드.
+
+
+    // 테스트코드에서 수정용 임시 메서드.
     public void patchTest(Article article) {
         if (article.getTitle() != null) {
             this.title = article.title;

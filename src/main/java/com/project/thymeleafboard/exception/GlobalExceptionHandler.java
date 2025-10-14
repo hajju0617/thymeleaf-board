@@ -3,6 +3,7 @@ package com.project.thymeleafboard.exception;
 
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+import java.io.IOException;
+import static com.project.thymeleafboard.common.GlobalConst.ERROR_SELF_VOTE;
 
 @ControllerAdvice
 @Slf4j
@@ -64,7 +68,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AlreadyLoggedInException.class)
     public String handleAlreadyLoggedInException(AlreadyLoggedInException alie, RedirectAttributes redirectAttributes) {
-        log.warn("로그인 되어 있는 상태에서 로그인 페이지 요청 : {}", alie.getMessage());
+        log.warn("이미 로그인 되어 있는 상태 : {}", alie.getMessage());
         redirectAttributes.addFlashAttribute("errorMsg", alie.getMessage());
         return "redirect:/article/list";
     }
@@ -75,6 +79,19 @@ public class GlobalExceptionHandler {
                 ive.getMessage(), httpServletRequest.getRequestURI(), httpServletRequest.getQueryString());
         redirectAttributes.addFlashAttribute("errorMsg", ive.getMessage());
         return "redirect:/article/list";
+    }
+
+    @ExceptionHandler(ResourcePermissionDeniedException.class)
+    public Object handleResourcePermissionDeniedException(ResourcePermissionDeniedException rpde,
+                                                          RedirectAttributes redirectAttributes,
+                                                          HttpServletRequest httpServletRequest) throws IOException {
+        String ajaxHeader = httpServletRequest.getHeader("X-Requested-With");
+        if ("XMLHttpRequest".equals(ajaxHeader)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ERROR_SELF_VOTE);
+        }
+        log.info("권한을 가지고 있지 않음 : msg = {}", rpde.getMessage());
+        redirectAttributes.addFlashAttribute("errorMsg", rpde.getMessage());
+        return "redirect:/article/detail/" + rpde.getId();
     }
 
     @ExceptionHandler(AuthenticationException.class)
