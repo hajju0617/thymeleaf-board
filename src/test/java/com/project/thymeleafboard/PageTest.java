@@ -4,6 +4,7 @@ import com.project.thymeleafboard.dto.ArticleDto;
 import com.project.thymeleafboard.dto.CommentDto;
 import com.project.thymeleafboard.entity.Article;
 import com.project.thymeleafboard.entity.Comment;
+import com.project.thymeleafboard.entity.SiteUser;
 import com.project.thymeleafboard.repository.ArticleRepository;
 import com.project.thymeleafboard.repository.CommentRepository;
 import com.project.thymeleafboard.service.ArticleService;
@@ -11,6 +12,8 @@ import com.project.thymeleafboard.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.Optional;
 
 @SpringBootTest
 public class PageTest {
@@ -23,15 +26,16 @@ public class PageTest {
     @Autowired
     private UserService userService;
 
-//    @Test
-//    void createData() {
-//        for (int i = 0; i < 100; i++) {
-//            ArticleDto articleDto = new ArticleDto();
-//            articleDto.setTitle(String.format("임시 데이터 : %05d" ,i));
-//            articleDto.setContent("임시 데이터");
-//            articleRepository.save(Article.create(articleDto, null));
-//        }
-//    }
+    @Test
+    void createData() {
+        for (int i = 0; i < 100; i++) {
+            ArticleDto articleDto = new ArticleDto();
+            articleDto.setTitle(String.format("임시 데이터 : %05d" ,i));
+            articleDto.setContent("임시 데이터");
+            Optional<SiteUser> siteUser = userService.findByUsername("zxc123");
+            articleRepository.save(Article.create(articleDto, siteUser.get()));
+        }
+    }
 
     @Test
     void createCommentData() {

@@ -22,20 +22,29 @@ import java.util.*;
 
 import static com.project.thymeleafboard.common.GlobalConst.*;
 
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ArticleService {
     private final ArticleRepository articleRepository;
-    private static final Set<Integer> ALLOWED_SIZES = Set.of(10, 20, 40, 50);
 
-    public Page<Article> getArticleList(int page, int size) {
+
+    public Page<Article> getArticleList(int page, int size, String sortType) {
         List<Sort.Order> orderList = new ArrayList<>();
-        orderList.add(Sort.Order.desc("createDate"));
+        switch (sortType) {
+            case "vote" -> orderList.add(Sort.Order.desc("countVote"));
+            case "view" -> orderList.add(Sort.Order.desc("countView"));
+            default -> orderList.add(Sort.Order.desc("createDate"));
+        }
+        // 추천수 or 조회수가 같은 경우를 대비해서 두 번째 정렬 조건을 추가.
+        if (!("date".equals(sortType))) {
+            orderList.add(Sort.Order.desc("createDate"));
+        }
         Pageable pageable = PageRequest.of(page, size, Sort.by(orderList));
         Page<Article> articlePage = articleRepository.findAll(pageable);
         if (articlePage.getContent().isEmpty()) {
-            log.info("size : {}, page : {}", size, page);
+            log.warn("size : {}, page : {}", size, page);
             throw new InvalidPageException(ERROR_PAGE_OUT_OF_ARTICLE_RANGE);
         }
         return articlePage;
@@ -65,6 +74,7 @@ public class ArticleService {
         }
     }
 
+    @Transactional
     public void createArticle(ArticleDto articleDto, SiteUser siteUser) {
         Article article = Article.create(articleDto, siteUser);
         articleRepository.save(article);
@@ -74,8 +84,10 @@ public class ArticleService {
     public void toggleVoteArticle(Article article, SiteUser siteUser) {
         validateNotSelfVote(article, siteUser);
         if (article.getVoter().contains(siteUser)) {
+            article.decrementCountVote();
             article.getVoter().remove(siteUser);
         } else {
+            article.incrementCountVote();
             article.getVoter().add(siteUser);
         }
     }
@@ -91,6 +103,11 @@ public class ArticleService {
         article.modify(article, articleDto);
     }
 
+    @Transactional
+    public void deleteArticle(Integer id) {
+        articleRepository.deleteById(id);
+    }
+
     public void validateArticlePageNum(int page) {
         if (page < 0) {
             throw new InvalidPageException(ERROR_NEGATIVE_PAGE_NUMBER);
@@ -98,16 +115,26 @@ public class ArticleService {
     }
 
     public void validateArticlePageSize(int size) {
+        final Set<Integer> ALLOWED_SIZES = Set.of(10, 20, 40, 50);
         if (!ALLOWED_SIZES.contains(size)) {
             throw new InvalidValueException(ERROR_INVALID_LIST_SIZE);
         }
     }
 
+    public void validateArticlePageSort(String sortType) {
+        final Set<String> sorts = Set.of("vote", "view", "date");
+        if (!sorts.contains(sortType)) {
+            log.warn("유효하지 않은 sortType 요청 : {}", sortType);
+            throw new InvalidValueException(ERROR_INVALID_SORT_TYPE);
+        }
+    }
+
     public void verifyArticleAuthor(Article article, Principal principal, Integer id) {
         if (!article.getAuthor().getUsername().equals(principal.getName())) {
-            throw new ResourcePermissionDeniedException(ERROR_SELF_MODIFY, id);
+            throw new ResourcePermissionDeniedException(ERROR_AUTHOR_MISMATCH, id);
         }
     }
 }
+
 
 

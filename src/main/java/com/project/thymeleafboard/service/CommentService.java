@@ -1,6 +1,5 @@
 package com.project.thymeleafboard.service;
 
-import com.project.thymeleafboard.dto.ArticleDto;
 import com.project.thymeleafboard.dto.CommentDto;
 import com.project.thymeleafboard.entity.Article;
 import com.project.thymeleafboard.entity.Comment;
@@ -45,7 +44,7 @@ public class CommentService {
 
     public Page<Comment> getCommentList(Article article, int page) {
         List<Sort.Order> orderList = new ArrayList<>();
-        orderList.add(Sort.Order.desc("createDate"));
+        orderList.add(Sort.Order.asc("createDate"));
         Pageable pageable = PageRequest.of(page, commentPageSize, Sort.by(orderList));
         return commentRepository.findAllByArticle(article, pageable);
     }
@@ -63,6 +62,11 @@ public class CommentService {
     @Transactional
     public void modifyComment(Comment comment, CommentDto commentDto) {
         comment.modify(commentDto);
+    }
+
+    @Transactional
+    public void deleteComment(Integer id) {
+        commentRepository.deleteById(id);
     }
 
     private void validateNotSelfVote(Comment Comment, SiteUser siteUser) {
@@ -87,9 +91,9 @@ public class CommentService {
             throw new InvalidPageException(ERROR_PAGE_OUT_OF_COMMENT_RANGE, id, page);
         }
     }
-    public void verifyCommentAuthor(Comment comment, Principal principal) {
+    public void verifyCommentAuthor(Comment comment, Principal principal, Integer id) {
         if (!comment.getAuthor().getUsername().equals(principal.getName())) {
-            throw new ResourcePermissionDeniedException(ERROR_SELF_MODIFY);
+            throw new ResourcePermissionDeniedException(ERROR_AUTHOR_MISMATCH, id);
         }
     }
 }

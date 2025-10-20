@@ -3,8 +3,7 @@ package com.project.thymeleafboard.common;
 import java.util.Random;
 
 public class CommonUtil {
-    private CommonUtil() {
-    }
+    private CommonUtil() {  }
     private static final String LOWER = "abcdefghijklmnopqrstuvwxyz";
     private static final String DIGITS = "0123456789";
     private static final String SPECIAL = "!@#$%^&*";

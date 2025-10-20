@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+import static com.project.thymeleafboard.common.GlobalConst.ERROR_USER_NOT_FOUND_BY_USERNAME;
+
 @RequiredArgsConstructor
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -19,7 +21,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         Optional<SiteUser> optionalSiteUser = userRepository.findByUsername(username);
 
         if (optionalSiteUser.isEmpty()) {
-            throw new UsernameNotFoundException("해당 사용자 이름(ID)을 찾을 수 없어요.");
+            throw new UsernameNotFoundException(ERROR_USER_NOT_FOUND_BY_USERNAME);
         }
         return new CustomUserDetails(optionalSiteUser.get());
     }

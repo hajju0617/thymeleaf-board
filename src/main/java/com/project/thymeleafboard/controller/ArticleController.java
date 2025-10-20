@@ -17,10 +17,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 
-import static com.project.thymeleafboard.common.GlobalConst.ERROR_NO_CHANGE_DETECTED;
+import static com.project.thymeleafboard.common.GlobalConst.*;
 
 @RequestMapping("/article")
 @RequiredArgsConstructor
@@ -38,16 +39,21 @@ public class ArticleController {
         model : 뷰 템플릿에서 사용할 객체를 넘겨주기 위해서.
         page : 클라이언트에서 요청한 페이지 번호.
         size : 페이지당 게시글 수.
+        sortType : 정렬 기준
 
     */
     @GetMapping("/list")
-    public String articleList(Model model, @RequestParam(value = "page", defaultValue = "0") int page,
-                              @RequestParam(value = "size", defaultValue = "10") int size) {
+    public String articleList(Model model,
+                              @RequestParam(value = "page", defaultValue = "0") int page,
+                              @RequestParam(value = "size", defaultValue = "10") int size,
+                              @RequestParam(value = "sortType", defaultValue = "date") String sortType) {
         articleService.validateArticlePageNum(page);
         articleService.validateArticlePageSize(size);
-        Page<Article> articlePage = articleService.getArticleList(page, size);
+        articleService.validateArticlePageSort(sortType);
+        Page<Article> articlePage = articleService.getArticleList(page, size, sortType);
         model.addAttribute("articlePage", articlePage);
         model.addAttribute("size", size);
+        model.addAttribute("sortType", sortType);
         return "article_list";
     }
 
@@ -57,22 +63,29 @@ public class ArticleController {
         @Param
         model : 뷰 템플릿에서 사용할 객체를 넘겨주기 위해서.
         id : article(글) id
-        page : 상세 조회 페이지에서 목록으로 되돌아갈 때 필요함.
         CommentDto : article_detail 뷰템플릿에서 CommentDto 객체가 필요함. (th:object)
         Principal : 현재 인증된 사용자(로그인한 사용자) 객체. (뷰 페이지에서 article, comment 추천했는지 유무 판단.)
         commentPage : 글 상세 조회 페이지에서 댓글 페이징처리.
+        page : 상세 조회 페이지에서 목록으로 되돌아갈 때 기존 값(들어왔던 페이지) 유지하려면 필요함.
+        size : 상세 조회 페이지에서 목록으로 되돌아갈 때 기존 값(1페이당 글 개수) 유지하려면 필요함.
+        sortType : 상세 조회 페이지에서 목록으로 되돌아갈 때 기존 값(페이지 정렬) 유지하려면 필요함.
     */
     @GetMapping("/detail/{id}")
-    public String articleDetail(Model model, @PathVariable("id") Integer id,
-                                @RequestParam(value = "page", defaultValue = "0") int page, CommentDto commentDto
-            , Principal principal, @RequestParam(value = "cmt-page", defaultValue = "0") int commentPage) {
+    public String articleDetail(Model model, @PathVariable("id") Integer id, CommentDto commentDto,
+                                @RequestParam(value = "page", defaultValue = "0") int page, Principal principal,
+                                @RequestParam(value = "cmt-page", defaultValue = "0") int commentPage,
+                                @RequestParam(value = "size", defaultValue = "10") int size,
+                                @RequestParam(value = "sortType", defaultValue = "date") String sortType) {
         articleService.validateArticlePageNum(page);
+        articleService.validateArticlePageSize(size);
         Article article = articleService.getArticleDetail(id);
         commentService.validateCommentPageNumber(article, commentPage, id, page);
         Page<Comment> commentList = commentService.getCommentList(article, commentPage);
         model.addAttribute("article", article);
         model.addAttribute("page", page);
-        model.addAttribute("commentPage", commentList);
+        model.addAttribute("commentList", commentList);
+        model.addAttribute("size", size);
+        model.addAttribute("sortType", sortType);
         // 상세 페이지 추천기능으로 인해 추가.
         if (principal != null) {
             SiteUser siteUser = userService.findByUsernameOrThrow(principal.getName());
@@ -152,9 +165,21 @@ public class ArticleController {
         return "article_form";
     }
 
+    /*
+        글 수정 메서드.
+
+        @Param
+        articleDto : 수정할 데이터.
+        bindingResult : 데이터 바인딩(Data Binding)과 검증(Validation) 과정에서 발생한 오류 정보를 담아둠. (오류 컨테이너 역할) & 뷰 템플릿에서 오류를 출력할 수 있음.
+        id : 글 id
+        principal : 현재 인증된 사용자(로그인한 사용자) 객체.
+        redirectAttributes : 리다이렉트(Redirect)시 데이터를 전달하는 역할.
+    */
+
     @PostMapping("/modify/{id}")
     public String modifyArticle(@Valid ArticleDto articleDto, BindingResult bindingResult,
-                                @PathVariable(value = "id") Integer id, Principal principal) {
+                                @PathVariable(value = "id") Integer id, Principal principal,
+                                RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             return "article_form";
         }
@@ -165,6 +190,25 @@ public class ArticleController {
             return "article_form";
         }
         articleService.modifyArticle(article, articleDto);
+        redirectAttributes.addFlashAttribute(SUCCESS_MSG, SUCCESS_MODIFY);
         return "redirect:/article/detail/" + id;
+    }
+
+    /*
+        글 삭제 요청을 처리하는 메서드.
+
+        @Param
+        id : 글 id
+        principal : 현재 인증된 사용자(로그인한 사용자) 객체.
+        redirectAttributes : 리다이렉트(Redirect)시 데이터를 전달하는 역할.
+    */
+
+    @PostMapping("/delete/{id}")
+    public String deleteArticle(@PathVariable(value = "id") Integer id, Principal principal, RedirectAttributes redirectAttributes) {
+        Article article = articleService.getArticle(id);
+        articleService.verifyArticleAuthor(article, principal, id);
+        articleService.deleteArticle(id);
+        redirectAttributes.addFlashAttribute(SUCCESS_MSG, SUCCESS_DELETE);
+        return "redirect:/article/list";
     }
 }

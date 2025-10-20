@@ -14,7 +14,7 @@
 <!-- 부트스트랩 : 내비게이션 바 클래스. -->
 <nav class="navbar navbar-expand-lg navbar-light bg- border-bottom">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/article/list">ThymeBoard</a>
+        <a class="navbar-brand" href="/article/list?page=0&size=10">ThymeBoard</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                                                      data-bs-target="#navbarSupportedContent"
                                                      aria-controls="navbarSupportedContent"
@@ -25,7 +25,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 <li class="nav-item me-5">
-                    <a class="nav-link" th:href="@{/article/list}">게시판</a>
+                    <a class="nav-link" th:href="@{/article/list?page=0&size=10}">게시판</a>
                 </li>
                 <li class="nav-item me-5">
                     <a class="nav-link" sec:authorize="isAnonymous()" th:href="@{/user/login}">로그인 / 회원가입</a>

@@ -15,10 +15,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 
-import static com.project.thymeleafboard.common.GlobalConst.ERROR_NO_CHANGE_DETECTED;
+import static com.project.thymeleafboard.common.GlobalConst.*;
 
 
 @Controller
@@ -74,7 +75,7 @@ public class CommentController {
     @GetMapping("/modify/{id}")
     public String modifyComment(Model model, @PathVariable(value = "id") Integer id, Principal principal) {
         Comment comment = commentService.getComment(id);
-        commentService.verifyCommentAuthor(comment, principal);
+        commentService.verifyCommentAuthor(comment, principal, comment.getArticle().getId());
         CommentDto commentDto = CommentDto.fromEntity(comment);
         model.addAttribute("commentDto", commentDto);
         return "comment_form";
@@ -82,17 +83,28 @@ public class CommentController {
 
     @PostMapping("/modify/{id}")
     public String modifyComment(@Valid CommentDto commentDto, BindingResult bindingResult,
-                                @PathVariable(value = "id") Integer id, Principal principal) {
+                                @PathVariable(value = "id") Integer id, Principal principal,
+                                RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             return "comment_form";
         }
         Comment comment = commentService.getComment(id);
-        commentService.verifyCommentAuthor(comment, principal);
+        commentService.verifyCommentAuthor(comment, principal, comment.getArticle().getId());
         if (comment.getContent().equals(commentDto.getContent())) {
             bindingResult.reject("noChangeDetected", ERROR_NO_CHANGE_DETECTED);
             return "comment_form";
         }
         commentService.modifyComment(comment, commentDto);
+        redirectAttributes.addFlashAttribute("successMsgCmt", SUCCESS_MODIFY);
+        return "redirect:/article/detail/" + comment.getArticle().getId();
+    }
+
+    @PostMapping("/delete/{id}")
+    public String deleteComment(@PathVariable(value = "id") Integer id, Principal principal, RedirectAttributes redirectAttributes) {
+        Comment comment = commentService.getComment(id);
+        commentService.verifyCommentAuthor(comment, principal, comment.getArticle().getId());
+        commentService.deleteComment(id);
+        redirectAttributes.addFlashAttribute("successMsgCmt", SUCCESS_DELETE);
         return "redirect:/article/detail/" + comment.getArticle().getId();
     }
 }

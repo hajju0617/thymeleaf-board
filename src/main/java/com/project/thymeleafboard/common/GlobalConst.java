@@ -1,17 +1,24 @@
 package com.project.thymeleafboard.common;
 
 public class GlobalConst {
+    private GlobalConst() {    }
+
     // Common   ========================================================================================================
+    public static final String SUCCESS_MSG = "successMsg";
+    public static final String ERROR_MSG = "errorMsg";
     public static final String SERVER_ERROR = "죄송합니다. 잠시 후 다시 시도해 주세요.";
     public static final String CONTENT_REQUIRED = "내용을 입력해 주세요.";
     public static final String ERROR_NEGATIVE_PAGE_NUMBER = "페이지 번호는 음수가 될 수 없어요.";
     public static final String ERROR_NO_CHANGE_DETECTED = "수정된 사항이 없어요.";
     public static final String ERROR_SELF_VOTE = "본인이 작성한 글/댓글은 추천할 수 없어요.";
-    public static final String ERROR_SELF_MODIFY = "본인이 작성한 글/댓글만 수정할 수 있어요.";
+    public static final String ERROR_AUTHOR_MISMATCH = "본인이 작성한 글/댓글만 수정하거나 삭제 할 수 있어요";
+    public static final String SUCCESS_DELETE = "정상적으로 삭제되었어요.";
+    public static final String SUCCESS_MODIFY = "정상적으로 수정되었어요.";
 
     // Article  ========================================================================================================
     public static final String TITLE_REQUIRED = "제목을 입력해 주세요.";
-    public static final String ERROR_INVALID_LIST_SIZE = "목록 사이즈는 10, 20, 40, 50 중 하나여야 해요.";
+    public static final String ERROR_INVALID_LIST_SIZE = "목록 사이즈는 '10, 20, 40, 50' 중 하나여야 해요.";
+    public static final String ERROR_INVALID_SORT_TYPE = "정렬 기준은 '최신순, 추천순, 조회수순' 중 하나여야 해요.";
     public static final String ERROR_ARTICLE_NOT_FOUND = "요청하신 게시글을 찾을 수 없어요.";
     public static final String ERROR_PAGE_OUT_OF_ARTICLE_RANGE = "게시글이 존재하지 않는 페이지예요.";
 
@@ -30,7 +37,7 @@ public class GlobalConst {
     public static final String SUCCESS_SIGNUP = "회원가입이 성공적으로 완료되었어요!";
     public static final String EMAIL_NOT_FOUND = "해당 이메일로 가입되어 있는 계정이 없어요. 이메일 주소를 다시 확인해 주세요.";
     public static final String PASSWORD_INCORRECT = "비밀번호가 서로 일치하지 않아요.";
-    public static final String ERROR_USER_NOT_FOUND_BY_USERNAME = "입력하신 아이디로 가입된 회원을 찾을 수 없어요.";
+    public static final String ERROR_USER_NOT_FOUND_BY_USERNAME = "입력하신 아이디로 가입되어 있는 사용자를 찾을 수 없어요.";
     public static final String ERROR_USER_NOT_FOUND_BY_USERNAME_AND_EMAIL = "입력하신 아이디와 이메일로 가입된 회원을 찾을 수 없어요.";
     public static final String ERROR_ALREADY_LOGGED_IN = "\"%s\" 계정으로 이미 로그인되어 있어요.";
 

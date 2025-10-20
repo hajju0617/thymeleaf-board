@@ -15,6 +15,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.io.IOException;
+
+import static com.project.thymeleafboard.common.GlobalConst.ERROR_MSG;
 import static com.project.thymeleafboard.common.GlobalConst.ERROR_SELF_VOTE;
 
 @ControllerAdvice
@@ -31,7 +33,7 @@ public class GlobalExceptionHandler {
                                               HttpServletRequest httpServletRequest,
                                               RedirectAttributes redirectAttributes) {
         log.warn("존재하지 않는 데이터 요청 : mse = {}, url = {}, query = {}", dnfe.getMessage(), httpServletRequest.getRequestURI(), httpServletRequest.getQueryString());
-        redirectAttributes.addFlashAttribute("errorMsg", dnfe.getMessage());
+        redirectAttributes.addFlashAttribute(ERROR_MSG, dnfe.getMessage());
         return "redirect:/article/list";
     }
 
@@ -42,13 +44,13 @@ public class GlobalExceptionHandler {
         if (ipe.getArticleId() != null) {
             log.warn("존재하지 않는 comment 페이지 요청 : msg = {}, url = {}, query = {}, page = {}",
                     ipe.getMessage(), httpServletRequest.getRequestURI(), httpServletRequest.getQueryString(), ipe.getPage());
-            redirectAttributes.addFlashAttribute("errorMsg", ipe.getMessage());
+            redirectAttributes.addFlashAttribute(ERROR_MSG, ipe.getMessage());
             return "redirect:/article/detail/" + ipe.getArticleId() + "?page=" + ipe.getPage();
 
         } else {
             log.warn("존재하지 않는 article 페이지 요청 : msg = {}, url = {}, query = {}, page = {}",
                     ipe.getMessage(), httpServletRequest.getRequestURI(), httpServletRequest.getQueryString(), ipe.getPage());
-            redirectAttributes.addFlashAttribute("errorMsg", ipe.getMessage());
+            redirectAttributes.addFlashAttribute(ERROR_MSG, ipe.getMessage());
             return "redirect:/article/list";
         }
     }
@@ -62,14 +64,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
     public String handleUserNotFoundException(UserNotFoundException unfe, RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("errorMsg", unfe.getMessage());
+        redirectAttributes.addFlashAttribute(ERROR_MSG, unfe.getMessage());
         return "redirect:/login";
     }
 
     @ExceptionHandler(AlreadyLoggedInException.class)
     public String handleAlreadyLoggedInException(AlreadyLoggedInException alie, RedirectAttributes redirectAttributes) {
         log.warn("이미 로그인 되어 있는 상태 : {}", alie.getMessage());
-        redirectAttributes.addFlashAttribute("errorMsg", alie.getMessage());
+        redirectAttributes.addFlashAttribute(ERROR_MSG, alie.getMessage());
         return "redirect:/article/list";
     }
 
@@ -77,7 +79,7 @@ public class GlobalExceptionHandler {
     public String handleInvalidValueException(InvalidValueException ive, HttpServletRequest httpServletRequest, RedirectAttributes redirectAttributes) {
         log.warn("유효하지 않은 요청 : msg = {}, url = {}, query = {}",
                 ive.getMessage(), httpServletRequest.getRequestURI(), httpServletRequest.getQueryString());
-        redirectAttributes.addFlashAttribute("errorMsg", ive.getMessage());
+        redirectAttributes.addFlashAttribute(ERROR_MSG, ive.getMessage());
         return "redirect:/article/list";
     }
 
@@ -90,25 +92,25 @@ public class GlobalExceptionHandler {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ERROR_SELF_VOTE);
         }
         log.info("권한을 가지고 있지 않음 : msg = {}", rpde.getMessage());
-        redirectAttributes.addFlashAttribute("errorMsg", rpde.getMessage());
+        redirectAttributes.addFlashAttribute(ERROR_MSG, rpde.getMessage());
         return "redirect:/article/detail/" + rpde.getId();
     }
 
     @ExceptionHandler(AuthenticationException.class)
     public String handleAuthException(RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("errorMsg", "로그인이 필요해요.");
+        redirectAttributes.addFlashAttribute(ERROR_MSG, "로그인이 필요해요.");
         return "redirect:/user/login";
     }
 
     @ExceptionHandler(AuthorizationDeniedException.class)
     public String handleAccessDenied(RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("errorMsg", "접근 권한이 없어요.");
+        redirectAttributes.addFlashAttribute(ERROR_MSG, "접근 권한이 없어요.");
         return "redirect:/article/list";
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public String handleIllegalArgumentException(RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("errorMsg", "잘못된 요청이에요.");
+        redirectAttributes.addFlashAttribute(ERROR_MSG, "잘못된 요청이에요.");
         return "redirect:/article/list";
     }
 

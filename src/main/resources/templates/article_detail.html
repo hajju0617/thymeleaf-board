@@ -9,10 +9,7 @@
     <!-- 부모 템플릿(layout.html)의 layout:fragment="content" 부분에 삽입되도록 설정. -->
     <div layout:fragment="content" class="container my-3">
         <!-- 댓글 페이지 예외 발생시 메시지 출력. -->
-        <div th:if="${errorMsg}" class="alert alert-danger alert-dismissible fade show">
-            <span th:text="${errorMsg}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+        <div th:replace="~{alert-messages :: messages}"></div>
 
         <div class="card my-4 shadow-sm">
             <div class="card-body">
@@ -44,16 +41,27 @@
 
                 <div class="mt-auto pt-2">
                     <div>
+                        <!-- 글 추천, 수정, 삭제. -->
                         <button class="btn vote-btn"
                                 th:data-id="${article.id}"
                                 data-type="article"
-                                th:classappend="${siteUser != null and #lists.contains(article.voter, siteUser)} ? 'btn-primary' : ' btn-outline-success'">
+                                th:classappend="${siteUser != null and #lists.contains(article.voter, siteUser)} ? 'btn-outline-success' : 'btn-outline-primary'">
                             추천
                             <span class="badge rounded-pill bg-dark ms-1 vote-count" th:text="${#lists.size(article.voter)}"></span>
                         </button>
                         <a th:href="@{|/article/modify/${article.id}|}" class="btn btn-outline-success"
                            sec:authorize="isAuthenticated()" th:if="${article.author != null and #authentication.getPrincipal().getUsername() == article.getAuthor().username}"
-                           th:text="수정"></a>
+                           th:text="수정">
+                        </a>
+                        <form id="articleDeleteForm" th:action="@{|/article/delete/${article.id}|}" method="post"
+                              sec:authorize="isAuthenticated()"
+                              th:if="${article.author != null and #authentication.getPrincipal().getUsername() == article.getAuthor().username}"
+                              class="d-inline">
+                            <!-- ↑ form 태그는 블록(Block) 요소라 줄바꿈이 발생해서 'class="d-inline' 코드를 추가해서 수정 버튼 옆에 한 줄로 나란히 배치되도록. -->
+                            <button type="button" th:onclick="confirmDelete('articleDeleteForm')" class="btn btn-outline-danger">
+                                삭제
+                            </button>
+                        </form>
                     </div>
                 </div>
 
@@ -61,8 +69,13 @@
         </div>
         <!-- 댓글 개수 표시. -->
         <h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(article.commentList)}개의 댓글이 있습니다.|"></h5>
+        <!-- 댓글 관련 메시지 출력. -->
+        <div th:if="${successMsgCmt}" class="alert alert-success alert-dismissible fade show">
+            <span th:text="${successMsgCmt}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
         <!-- 댓글 반복 출력 -->
-        <div class="card my-3" th:each="comment : ${commentPage}">
+        <div class="card my-3" th:each="comment : ${commentList}">
             <div class="card-body">
                 <div class="card-text" style="white-space: pre-line;" th:text="${comment.content}"></div>
                     <div class="border-top my-2"></div>
@@ -70,16 +83,27 @@
                 <div class="mt-auto pt-2">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
+                            <!-- 댓글 추천, 수정, 삭제. -->
                             <button class="btn vote-btn"
                                     th:data-id="${comment.id}"
                                     data-type="comment"
-                                    th:classappend="${#lists.contains(comment.voter, siteUser)} ? 'btn-primary' : ' btn-outline-success'">
+                                    th:classappend="${#lists.contains(comment.voter, siteUser)} ? 'btn-outline-success' : 'btn-outline-primary'">
                                 추천
                                 <span class="badge rounded-pill bg-dark ms-1 vote-count" th:text="${#lists.size(comment.voter)}"></span>
                             </button>
                             <a th:href="@{|/comment/modify/${comment.id}|}" class="btn btn-outline-success ms-1"
                                sec:authorize="isAuthenticated()" th:if="${article.author != null and #authentication.getPrincipal().getUsername() == comment.getAuthor().username}"
-                               th:text="수정"></a>
+                               th:text="수정">
+                            </a>
+                            <form th:id="'commentDeleteForm_' + ${comment.id}" th:action="@{|/comment/delete/${comment.id}|}" method="post"
+                                  sec:authorize="isAuthenticated()"
+                                  th:if="${article.author != null and #authentication.getPrincipal().getUsername() == article.getAuthor().username}"
+                                  class="d-inline">
+                                <button type="button" class="btn btn-outline-danger ms-1"
+                                        th:onclick="|confirmDelete('commentDeleteForm_' + ${comment.id})|">
+                                    삭제
+                                </button>
+                            </form>
                         </div>
                         <!-- 댓글 작성일시 -->
                         <div class="d-flex align-items-center fs-6 text-dark">
@@ -100,34 +124,34 @@
             <textarea sec:authorize="isAnonymous()" disabled placeholder="댓글을 작성하려면 로그인이 필요해요." th:field="*{content}" rows="7" class="form-control" style="resize: none"></textarea>
             <textarea sec:authorize="isAuthenticated()" th:field="*{content}" rows="7" class="form-control" style="resize: none"></textarea>
             <div class="d-flex justify-content-between">
-                <a th:href="@{|/article/list?page=${page}|}" class="btn btn-outline-success my-2">목록</a>
+                <a th:href="@{|/article/list?page=${page}&size=${size}&sortType=${sortType}|}" class="btn btn-outline-success my-2">목록</a>
                 <button type="submit" class="btn btn-outline-primary my-2">댓글 등록하기</button>
             </div>
         </form>
 
         <!-- 댓글 페이징처리 -->
-        <div th:if="${!commentPage.isEmpty()}">
+        <div th:if="${!commentList.isEmpty()}">
             <ul class="pagination justify-content-center">
-                <li class="page-item" th:classappend="${!commentPage.hasPrevious()} ? 'disabled'">
-                    <a class="page-link" th:href="@{|?page=${page}&cmt-page=0|}">&laquo;</a>
+                <li class="page-item" th:classappend="${!commentList.hasPrevious()} ? 'disabled'">
+                    <a class="page-link" th:href="@{|?page=${page}&size=${size}&cmt-page=0|}">&laquo;</a>
                 </li>
-                <li class="page-item" th:classappend="${!commentPage.hasPrevious()} ? 'disabled'">
-                    <a class="page-link" th:href="@{|?page=${page}&cmt-page=${commentPage.number - 1}|}">
+                <li class="page-item" th:classappend="${!commentList.hasPrevious()} ? 'disabled'">
+                    <a class="page-link" th:href="@{|?page=${page}&size=${size}&cmt-page=${commentList.number - 1}|}">
                         <span>&lt;</span>
                     </a>
                 </li>
-                <li th:each="cmtPage : ${#numbers.sequence(0, commentPage.totalPages - 1)}"
-                    th:if="${cmtPage >= commentPage.number - 5 and cmtPage <= commentPage.number + 5}"
-                    th:classappend="${cmtPage == commentPage.number} ? 'active'" class="page-item">
-                    <a th:text="${cmtPage + 1}" class="page-link" th:href="@{|?page=${page}&cmt-page=${cmtPage}|}"></a>
+                <li th:each="cmtPage : ${#numbers.sequence(0, commentList.totalPages - 1)}"
+                    th:if="${cmtPage >= commentList.number - 5 and cmtPage <= commentList.number + 5}"
+                    th:classappend="${cmtPage == commentList.number} ? 'active'" class="page-item">
+                    <a th:text="${cmtPage + 1}" class="page-link" th:href="@{|?page=${page}&size=${size}&cmt-page=${cmtPage}|}"></a>
                 </li>
-                <li class="page-item" th:classappend="${!commentPage.hasNext()} ? 'disabled'">
-                    <a class="page-link" th:href="@{|?page=${page}&cmt-page=${commentPage.number + 1}|}">
+                <li class="page-item" th:classappend="${!commentList.hasNext()} ? 'disabled'">
+                    <a class="page-link" th:href="@{|?page=${page}&size=${size}&cmt-page=${commentList.number + 1}|}">
                         <span>&gt;</span>
                     </a>
                 </li>
-                <li class="page-item" th:classappend="${!commentPage.hasNext()} ? 'disabled'">
-                    <a class="page-link" th:href="@{|?page=${page}&cmt-page=${commentPage.totalPages - 1}|}">&raquo;</a>
+                <li class="page-item" th:classappend="${!commentList.hasNext()} ? 'disabled'">
+                    <a class="page-link" th:href="@{|?page=${page}&size=${size}&cmt-page=${commentList.totalPages - 1}|}">&raquo;</a>
                 </li>
             </ul>
         </div>
@@ -170,15 +194,23 @@
             .then(voteCount => {
                 countSpan.textContent = voteCount;
 
-                if (btn.classList.contains('btn-primary')) {
-                    btn.classList.remove('btn-primary');
+                if (btn.classList.contains('btn-outline-primary')) {
+                    btn.classList.remove('btn-outline-primary');
                     btn.classList.add('btn-outline-success');
                 } else {
                     btn.classList.remove('btn-outline-success');
-                    btn.classList.add('btn-primary');
+                    btn.classList.add('btn-outline-primary');
                 }
             })
             .catch(err => console.error(err));
         })
     })
+
+    function confirmDelete(formId) {
+        // console.log(document.getElementById(formId));
+        // console.log(formId);
+        if (confirm("정말 삭제하시겠습니까?")) {
+            document.getElementById(formId).submit();
+        }
+    }
 </script>

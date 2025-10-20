@@ -37,6 +37,10 @@ public class Article {
     private int countView;
 
 
+    @Column(columnDefinition = "integer default 0", nullable = false)
+    private int countVote;
+
+
     @ManyToMany
     private Set<SiteUser> voter;
 
@@ -59,6 +63,14 @@ public class Article {
         this.countView++;
     }
 
+    public void incrementCountVote() {
+        this.countVote++;
+    }
+
+    public void decrementCountVote() {
+        this.countVote--;
+    }
+
     public void modify(Article article, ArticleDto articleDto) {
         if (!article.getTitle().equals(articleDto.getTitle())) {
             this.title = articleDto.getTitle();
@@ -66,7 +78,7 @@ public class Article {
         if (!article.getContent().equals(articleDto.getContent())) {
             this.content = articleDto.getContent();
         }
-        // 컨트롤러에서 먼저 검증했으므로 제목, 내용 중 하나는 무조건 바뀌었음.
+        // 컨트롤러에서 둘 다 바뀐게 없는지 먼저 검증했으므로 둘 중 하나는 무조건 바뀌었음.
         this.modifyDate = LocalDateTime.now();
     }
 

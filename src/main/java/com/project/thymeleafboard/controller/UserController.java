@@ -74,7 +74,7 @@ public class UserController {
         }
         try {
             userService.createUser(userDto);
-            redirectAttributes.addFlashAttribute("successMsg", SUCCESS_SIGNUP);
+            redirectAttributes.addFlashAttribute(SUCCESS_MSG, SUCCESS_SIGNUP);
         } catch (Exception e) {
             log.warn("회원가입시 에러 발생 : msg = {}, cause = ", e.getMessage(), e);
             bindingResult.reject("signupError", e.getMessage());
@@ -170,7 +170,7 @@ public class UserController {
             String tempPassword = CommonUtil.makeRandomPassword();
             mailService.sendTempPasswordMail(findPwDto.getEmail(), tempPassword);
             userService.changePassword(optionalSiteUser.get(), tempPassword);
-            redirectAttributes.addFlashAttribute("successMsg", SUCCESS_TEMP_PASSWORD_SENT_EMAIL);
+            redirectAttributes.addFlashAttribute(SUCCESS_MSG, SUCCESS_TEMP_PASSWORD_SENT_EMAIL);
         } else {
             bindingResult.reject("userNotFound", ERROR_USER_NOT_FOUND_BY_USERNAME_AND_EMAIL);
             return "find_pw";

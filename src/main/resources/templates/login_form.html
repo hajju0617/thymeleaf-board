@@ -4,15 +4,8 @@
     <div layout:fragment="content" class="container my-3" style="max-width: 900px">
         <h4 class="my-3 border-bottom pb-2">로그인</h4>
         <!-- RedirectAttributes의 successMsg 메시지 출력. -->
-        <div th:if="${successMsg}" class="alert alert-success alert-dismissible fade show">
-            <span th:text="${successMsg}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
         <!-- RedirectAttributes의 errorMsg 메시지 출력. -->
-        <div th:if="${errorMsg}" class="alert alert-danger alert-dismissible fade show">
-            <span th:text="${errorMsg}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+        <div th:replace="~{alert-messages :: messages}"></div>
         <form th:action="@{/user/login}" method="post">
             <!--  로그인에 실패할 경우 /user/login?error 처럼 error를 전달하는데 이를 활용하기 위해서. (로그인에 실패할 경우 시큐리티에 의해 로그인 페이지로 리다이렉트 됨.) -->
             <div th:if="${param.error}">
