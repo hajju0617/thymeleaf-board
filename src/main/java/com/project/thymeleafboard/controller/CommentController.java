@@ -9,6 +9,7 @@ import com.project.thymeleafboard.service.CommentService;
 import com.project.thymeleafboard.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -48,6 +49,12 @@ public class CommentController {
         if (bindingResult.hasErrors()) {
             // article_detail 뷰템플릿에서 Article 객체가 필요함.
             model.addAttribute("article", article);
+            Page<Comment> commentList = commentService.getCommentList(article, 0, "date");
+            // 'redirect'가 아니므로 model에 수동으로 값을 채워 넣어줘야됨.
+            model.addAttribute("commentList", commentList);
+            model.addAttribute("page", 0);
+            model.addAttribute("size", 10);
+            model.addAttribute("sortType", "date");
             return "article_detail";
         }
         commentService.create(article, commentDto.getContent(), userService.findByUsernameOrThrow(principal.getName()));

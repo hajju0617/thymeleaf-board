@@ -69,6 +69,18 @@
         </div>
         <!-- 댓글 개수 표시. -->
         <h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(article.commentList)}개의 댓글이 있습니다.|"></h5>
+        <form th:action="@{|/article/detail/${article.id}|}" method="get" class="d-flex align-items-center gap-2 mb-3">
+            <input type="hidden" name="page" th:value="${page}" />
+            <input type="hidden" name="size" th:value="${size}" />
+            <input type="hidden" name="sortType" th:value="${sortType}" />
+            <input type="hidden" name="cmt-page" value="0" />
+
+            <label for="sortSelect" class="fw-bold">정렬:</label>
+            <select id="sortSelect" name="cmt-sortType" class="form-select w-auto" onchange="this.form.submit()">
+                <option th:value="date" th:selected="${cmtSortType == 'date'}">최신순</option>
+                <option th:value="vote" th:selected="${cmtSortType == 'vote'}">추천순</option>
+            </select>
+        </form>
         <!-- 댓글 관련 메시지 출력. -->
         <div th:if="${successMsgCmt}" class="alert alert-success alert-dismissible fade show">
             <span th:text="${successMsgCmt}"></span>
@@ -76,6 +88,8 @@
         </div>
         <!-- 댓글 반복 출력 -->
         <div class="card my-3" th:each="comment : ${commentList}">
+            <!-- HTML 앵커(anchor) 태그를 이용한 '페이지 내 위치 표시용' -->
+            <a th:id="|comment_${comment.id}|"></a>
             <div class="card-body">
                 <div class="card-text" style="white-space: pre-line;" th:text="${comment.content}"></div>
                     <div class="border-top my-2"></div>
@@ -110,7 +124,11 @@
                             <strong class="me-2">작성자:</strong>
                             <span class="me-3" th:text="${comment.author != null ? comment.author.username : '-'}"></span>
                             <strong class="me-2">작성일시:</strong>
-                            <span th:text="${#temporals.format(comment.createDate, 'yyyy-MM-dd HH:mm')}"></span>
+                            <span class="me-3" th:text="${#temporals.format(comment.createDate, 'yyyy-MM-dd HH:mm')}"></span>
+                            <span th:if="${comment.modifyDate != null}">
+                                <strong class="me-2">수정일시:</strong>
+                                <span th:text="${#temporals.format(comment.modifyDate, 'yyyy-MM-dd HH:mm')}"></span>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -133,25 +151,25 @@
         <div th:if="${!commentList.isEmpty()}">
             <ul class="pagination justify-content-center">
                 <li class="page-item" th:classappend="${!commentList.hasPrevious()} ? 'disabled'">
-                    <a class="page-link" th:href="@{|?page=${page}&size=${size}&cmt-page=0|}">&laquo;</a>
+                    <a class="page-link" th:href="@{|?page=${page}&size=${size}&sortType=${sortType}&cmt-page=0&cmt-sortType=${cmtSortType}|}">&laquo;</a>
                 </li>
                 <li class="page-item" th:classappend="${!commentList.hasPrevious()} ? 'disabled'">
-                    <a class="page-link" th:href="@{|?page=${page}&size=${size}&cmt-page=${commentList.number - 1}|}">
+                    <a class="page-link" th:href="@{|?page=${page}&size=${size}&sortType=${sortType}&cmt-page=${commentList.number - 1}&cmt-sortType=${cmtSortType}|}">
                         <span>&lt;</span>
                     </a>
                 </li>
                 <li th:each="cmtPage : ${#numbers.sequence(0, commentList.totalPages - 1)}"
                     th:if="${cmtPage >= commentList.number - 5 and cmtPage <= commentList.number + 5}"
                     th:classappend="${cmtPage == commentList.number} ? 'active'" class="page-item">
-                    <a th:text="${cmtPage + 1}" class="page-link" th:href="@{|?page=${page}&size=${size}&cmt-page=${cmtPage}|}"></a>
+                    <a th:text="${cmtPage + 1}" class="page-link" th:href="@{|?page=${page}&size=${size}&sortType=${sortType}&cmt-page=${cmtPage}&cmt-sortType=${cmtSortType}|}"></a>
                 </li>
                 <li class="page-item" th:classappend="${!commentList.hasNext()} ? 'disabled'">
-                    <a class="page-link" th:href="@{|?page=${page}&size=${size}&cmt-page=${commentList.number + 1}|}">
+                    <a class="page-link" th:href="@{|?page=${page}&size=${size}&sortType=${sortType}&cmt-page=${commentList.number + 1}&cmt-sortType=${cmtSortType}|}">
                         <span>&gt;</span>
                     </a>
                 </li>
                 <li class="page-item" th:classappend="${!commentList.hasNext()} ? 'disabled'">
-                    <a class="page-link" th:href="@{|?page=${page}&size=${size}&cmt-page=${commentList.totalPages - 1}|}">&raquo;</a>
+                    <a class="page-link" th:href="@{|?page=${page}&size=${size}&sortType=${sortType}&cmt-page=${commentList.totalPages - 1}&cmt-sortType=${cmtSortType}|}">&raquo;</a>
                 </li>
             </ul>
         </div>

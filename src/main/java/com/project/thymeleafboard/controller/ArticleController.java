@@ -75,17 +75,19 @@ public class ArticleController {
                                 @RequestParam(value = "page", defaultValue = "0") int page, Principal principal,
                                 @RequestParam(value = "cmt-page", defaultValue = "0") int commentPage,
                                 @RequestParam(value = "size", defaultValue = "10") int size,
-                                @RequestParam(value = "sortType", defaultValue = "date") String sortType) {
+                                @RequestParam(value = "sortType", defaultValue = "date") String sortType,
+                                @RequestParam(value = "cmt-sortType", defaultValue = "date") String cmtSortType) {
         articleService.validateArticlePageNum(page);
         articleService.validateArticlePageSize(size);
         Article article = articleService.getArticleDetail(id);
-        commentService.validateCommentPageNumber(article, commentPage, id, page);
-        Page<Comment> commentList = commentService.getCommentList(article, commentPage);
+        commentService.validateCommentPageNumber(article, commentPage, id, page, cmtSortType);
+        Page<Comment> commentList = commentService.getCommentList(article, commentPage, cmtSortType);
         model.addAttribute("article", article);
         model.addAttribute("page", page);
         model.addAttribute("commentList", commentList);
         model.addAttribute("size", size);
         model.addAttribute("sortType", sortType);
+        model.addAttribute("cmtSortType", cmtSortType);
         // 상세 페이지 추천기능으로 인해 추가.
         if (principal != null) {
             SiteUser siteUser = userService.findByUsernameOrThrow(principal.getName());

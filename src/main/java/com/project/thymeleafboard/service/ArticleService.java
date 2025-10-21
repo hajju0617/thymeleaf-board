@@ -124,7 +124,6 @@ public class ArticleService {
     public void validateArticlePageSort(String sortType) {
         final Set<String> sorts = Set.of("vote", "view", "date");
         if (!sorts.contains(sortType)) {
-            log.warn("유효하지 않은 sortType 요청 : {}", sortType);
             throw new InvalidValueException(ERROR_INVALID_SORT_TYPE);
         }
     }

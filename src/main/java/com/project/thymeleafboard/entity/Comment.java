@@ -25,7 +25,6 @@ public class Comment {
 
     private LocalDateTime modifyDate;
 
-
     @ManyToOne
     private Article article;
 
@@ -34,6 +33,9 @@ public class Comment {
 
     @ManyToMany
     private Set<SiteUser> voter;
+
+    @Column(columnDefinition = "integer default 0", nullable = false)
+    private int countVote;
 
     public Comment() {
     }
@@ -52,6 +54,14 @@ public class Comment {
     public void modify(CommentDto commentDto) {
         this.content = commentDto.getContent();
         this.modifyDate = LocalDateTime.now();
+    }
+
+    public void incrementCountVote() {
+        this.countVote++;
+    }
+
+    public void decrementCountVote() {
+        this.countVote--;
     }
 
 

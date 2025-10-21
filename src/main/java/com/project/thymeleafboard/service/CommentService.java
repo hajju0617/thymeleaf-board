@@ -6,6 +6,7 @@ import com.project.thymeleafboard.entity.Comment;
 import com.project.thymeleafboard.entity.SiteUser;
 import com.project.thymeleafboard.exception.DataNotFoundException;
 import com.project.thymeleafboard.exception.InvalidPageException;
+import com.project.thymeleafboard.exception.InvalidValueException;
 import com.project.thymeleafboard.exception.ResourcePermissionDeniedException;
 import com.project.thymeleafboard.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.project.thymeleafboard.common.GlobalConst.*;
 
@@ -42,9 +44,14 @@ public class CommentService {
         }
     }
 
-    public Page<Comment> getCommentList(Article article, int page) {
+    public Page<Comment> getCommentList(Article article, int page, String cmtSortType) {
         List<Sort.Order> orderList = new ArrayList<>();
-        orderList.add(Sort.Order.asc("createDate"));
+        if ("date".equals(cmtSortType)) {
+            orderList.add(Sort.Order.asc("createDate"));
+        } else {
+            orderList.add(Sort.Order.desc("countVote"));
+            orderList.add(Sort.Order.asc("createDate"));
+        }
         Pageable pageable = PageRequest.of(page, commentPageSize, Sort.by(orderList));
         return commentRepository.findAllByArticle(article, pageable);
     }
@@ -53,8 +60,10 @@ public class CommentService {
     public void toggleVote(Comment comment, SiteUser siteUser) {
         validateNotSelfVote(comment, siteUser);
         if (comment.getVoter().contains(siteUser)) {
+            comment.decrementCountVote();
             comment.getVoter().remove(siteUser);
         } else {
+            comment.incrementCountVote();
             comment.getVoter().add(siteUser);
         }
     }
@@ -75,9 +84,10 @@ public class CommentService {
         }
     }
 
-    public void validateCommentPageNumber(Article article, int commentPage, Integer id, int page) {
+    public void validateCommentPageNumber(Article article, int commentPage, Integer id, int page, String cmtSortType) {
         isPageNumberNegative(commentPage, id, page);
         isPageOutOfRange(article, commentPage, id, page);
+        validateArticlePageSort(cmtSortType, id, page);
     }
     private void isPageNumberNegative(int commentPage, Integer id, int page) {
         if (commentPage < 0) {
@@ -89,6 +99,13 @@ public class CommentService {
         // totalPages > 0 조건을 넣은 이유 : 댓글이 0개인 게시글의 경우 예외가 발생되면 안됨.
         if (totalPages > 0 && commentPage >= totalPages) {
             throw new InvalidPageException(ERROR_PAGE_OUT_OF_COMMENT_RANGE, id, page);
+        }
+    }
+
+    private void validateArticlePageSort(String cmtSortType, Integer id, int page) {
+        final Set<String> cmtSorts = Set.of("vote", "date");
+        if (!cmtSorts.contains(cmtSortType)) {
+            throw new InvalidValueException(ERROR_INVALID_CMT_SORT_TYPE, id, page);
         }
     }
     public void verifyCommentAuthor(Comment comment, Principal principal, Integer id) {

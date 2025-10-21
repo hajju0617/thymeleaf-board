@@ -3,7 +3,6 @@ package com.project.thymeleafboard.exception;
 
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,9 +37,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidPageException.class)
-    public String handleInvalidArticlePageException(HttpServletRequest httpServletRequest,
-                                                    InvalidPageException ipe,
-                                                    RedirectAttributes redirectAttributes) {
+    public String handleInvalidPageException(HttpServletRequest httpServletRequest,
+                                             InvalidPageException ipe,
+                                             RedirectAttributes redirectAttributes) {
         if (ipe.getArticleId() != null) {
             log.warn("존재하지 않는 comment 페이지 요청 : msg = {}, url = {}, query = {}, page = {}",
                     ipe.getMessage(), httpServletRequest.getRequestURI(), httpServletRequest.getQueryString(), ipe.getPage());
@@ -79,8 +78,13 @@ public class GlobalExceptionHandler {
     public String handleInvalidValueException(InvalidValueException ive, HttpServletRequest httpServletRequest, RedirectAttributes redirectAttributes) {
         log.warn("유효하지 않은 요청 : msg = {}, url = {}, query = {}",
                 ive.getMessage(), httpServletRequest.getRequestURI(), httpServletRequest.getQueryString());
-        redirectAttributes.addFlashAttribute(ERROR_MSG, ive.getMessage());
-        return "redirect:/article/list";
+        if (ive.getArticleId() != null) {
+            redirectAttributes.addFlashAttribute(ERROR_MSG, ive.getMessage());
+            return "redirect:/article/detail/" + ive.getArticleId() + "?page=" + ive.getPage();
+        } else {
+            redirectAttributes.addFlashAttribute(ERROR_MSG, ive.getMessage());
+            return "redirect:/article/list";
+        }
     }
 
     @ExceptionHandler(ResourcePermissionDeniedException.class)

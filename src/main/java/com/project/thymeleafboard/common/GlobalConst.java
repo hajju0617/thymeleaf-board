@@ -26,6 +26,7 @@ public class GlobalConst {
     public static int commentPageSize = 5;
     public static String ERROR_PAGE_OUT_OF_COMMENT_RANGE = "댓글이 존재하지 않는 페이지예요.";
     public static String ERROR_COMMENT_NOT_FOUND = "요청하신 댓글을 찾을 수 없어요.";
+    public static final String ERROR_INVALID_CMT_SORT_TYPE = "정렬 기준은 '최신순, 추천순' 중 하나여야 해요.";
 
     // User     ========================================================================================================
     public static final String USERNAME_REQUIRED = "아이디를 입력해 주세요. (영문 소문자와 숫자를 사용해서 5~15자리)";
