@@ -30,9 +30,9 @@ import static com.project.thymeleafboard.common.GlobalConst.*;
 public class CommentService {
     private final CommentRepository commentRepository;
 
-    public void create(Article article, String content, SiteUser author) {
+    public Comment create(Article article, String content, SiteUser author) {
         Comment comment = Comment.createComment(article, content, author);
-        commentRepository.save(comment);
+        return commentRepository.save(comment);
     }
 
     public Comment getComment(Integer id) {
@@ -76,6 +76,32 @@ public class CommentService {
     @Transactional
     public void deleteComment(Integer id) {
         commentRepository.deleteById(id);
+    }
+
+    public int getPageNumberOfComment(Article article, Integer id) {
+        return calculateBasePageNumber(article, id);
+    }
+
+    public int getRedirectPageAfterDelete(Comment comment) {
+        Article article = comment.getArticle();
+
+        int pageNumber = calculateBasePageNumber(article, comment.getId());
+        long countBefore = commentRepository.countCommentsBefore(article.getId(), comment.getId());
+
+        if (countBefore > 0 && (countBefore % commentPageSize == 0)) {
+            pageNumber--;
+        }
+        return Math.max(0, pageNumber);
+    }
+
+    public Optional<Integer> findPreviousCommentId(Article article, Integer id) {
+        return commentRepository.findPreviousCommentId(article.getId(), id);
+    }
+
+    private int calculateBasePageNumber(Article article, Integer id) {
+        // article 에 작성되어 있는 댓글들 중 id(comment.id) 보다 이전에 생성된 댓글 개수를 기준으로 페이지 계산.
+        long countBefore = commentRepository.countCommentsBefore(article.getId(), id);
+        return (int) (countBefore / commentPageSize);
     }
 
     private void validateNotSelfVote(Comment Comment, SiteUser siteUser) {

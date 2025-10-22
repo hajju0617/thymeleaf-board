@@ -10,13 +10,13 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.io.IOException;
 
-import static com.project.thymeleafboard.common.GlobalConst.ERROR_MSG;
-import static com.project.thymeleafboard.common.GlobalConst.ERROR_SELF_VOTE;
+import static com.project.thymeleafboard.common.GlobalConst.*;
 
 @ControllerAdvice
 @Slf4j
@@ -33,6 +33,15 @@ public class GlobalExceptionHandler {
                                               RedirectAttributes redirectAttributes) {
         log.warn("존재하지 않는 데이터 요청 : mse = {}, url = {}, query = {}", dnfe.getMessage(), httpServletRequest.getRequestURI(), httpServletRequest.getQueryString());
         redirectAttributes.addFlashAttribute(ERROR_MSG, dnfe.getMessage());
+        return "redirect:/article/list";
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public String handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException matme,
+                                                            HttpServletRequest httpServletRequest,
+                                                            RedirectAttributes redirectAttributes) {
+        log.warn("쿼리스트링 타입 변환 에러 발생 : msg = {}, url = {}, query = {}", matme.getMessage(), httpServletRequest.getRequestURI(), httpServletRequest.getQueryString());
+        redirectAttributes.addFlashAttribute(ERROR_MSG, ERROR_QUERY_STRING_MISMATCH);
         return "redirect:/article/list";
     }
 

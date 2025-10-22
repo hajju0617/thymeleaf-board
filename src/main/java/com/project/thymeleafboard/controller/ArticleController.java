@@ -62,16 +62,17 @@ public class ArticleController {
 
         @Param
         model : 뷰 템플릿에서 사용할 객체를 넘겨주기 위해서.
-        id : article(글) id
+        articleId : article(글) id
         CommentDto : article_detail 뷰템플릿에서 CommentDto 객체가 필요함. (th:object)
         Principal : 현재 인증된 사용자(로그인한 사용자) 객체. (뷰 페이지에서 article, comment 추천했는지 유무 판단.)
         commentPage : 글 상세 조회 페이지에서 댓글 페이징처리.
         page : 상세 조회 페이지에서 목록으로 되돌아갈 때 기존 값(들어왔던 페이지) 유지하려면 필요함.
         size : 상세 조회 페이지에서 목록으로 되돌아갈 때 기존 값(1페이당 글 개수) 유지하려면 필요함.
         sortType : 상세 조회 페이지에서 목록으로 되돌아갈 때 기존 값(페이지 정렬) 유지하려면 필요함.
+        cmtSortType : 댓글 페이지 번호.
     */
     @GetMapping("/detail/{id}")
-    public String articleDetail(Model model, @PathVariable("id") Integer id, CommentDto commentDto,
+    public String articleDetail(Model model, @PathVariable("id") Integer articleId, CommentDto commentDto,
                                 @RequestParam(value = "page", defaultValue = "0") int page, Principal principal,
                                 @RequestParam(value = "cmt-page", defaultValue = "0") int commentPage,
                                 @RequestParam(value = "size", defaultValue = "10") int size,
@@ -79,8 +80,8 @@ public class ArticleController {
                                 @RequestParam(value = "cmt-sortType", defaultValue = "date") String cmtSortType) {
         articleService.validateArticlePageNum(page);
         articleService.validateArticlePageSize(size);
-        Article article = articleService.getArticleDetail(id);
-        commentService.validateCommentPageNumber(article, commentPage, id, page, cmtSortType);
+        Article article = articleService.getArticleDetail(articleId);
+        commentService.validateCommentPageNumber(article, commentPage, articleId, page, cmtSortType);
         Page<Comment> commentList = commentService.getCommentList(article, commentPage, cmtSortType);
         model.addAttribute("article", article);
         model.addAttribute("page", page);
@@ -140,8 +141,8 @@ public class ArticleController {
 
     @PostMapping("/vote/{id}")
     @ResponseBody
-    public ResponseEntity<Integer> articleVote(@PathVariable("id") Integer id, Principal principal) {
-        Article article = articleService.getArticle(id);
+    public ResponseEntity<Integer> articleVote(@PathVariable("id") Integer articleId, Principal principal) {
+        Article article = articleService.getArticle(articleId);
         SiteUser siteUser = userService.findByUsernameOrThrow(principal.getName());
         articleService.toggleVoteArticle(article, siteUser);
 
@@ -159,9 +160,9 @@ public class ArticleController {
 
     @GetMapping("/modify/{id}")
     public String modifyArticle(Model model,
-                                @PathVariable(value = "id") Integer id, Principal principal) {
-        Article article = articleService.getArticle(id);
-        articleService.verifyArticleAuthor(article, principal, id);
+                                @PathVariable(value = "id") Integer articleId, Principal principal) {
+        Article article = articleService.getArticle(articleId);
+        articleService.verifyArticleAuthor(article, principal, articleId);
         ArticleDto articleDto = ArticleDto.fromEntity(article);
         model.addAttribute("articleDto", articleDto);
         return "article_form";
@@ -180,20 +181,20 @@ public class ArticleController {
 
     @PostMapping("/modify/{id}")
     public String modifyArticle(@Valid ArticleDto articleDto, BindingResult bindingResult,
-                                @PathVariable(value = "id") Integer id, Principal principal,
+                                @PathVariable(value = "id") Integer articleId, Principal principal,
                                 RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             return "article_form";
         }
-        Article article = articleService.getArticle(id);
-        articleService.verifyArticleAuthor(article, principal, id);
+        Article article = articleService.getArticle(articleId);
+        articleService.verifyArticleAuthor(article, principal, articleId);
         if ((article.getTitle().equals(articleDto.getTitle()) && article.getContent().equals(articleDto.getContent()))) {
             bindingResult.reject("noChangeDetected", ERROR_NO_CHANGE_DETECTED);
             return "article_form";
         }
         articleService.modifyArticle(article, articleDto);
         redirectAttributes.addFlashAttribute(SUCCESS_MSG, SUCCESS_MODIFY);
-        return "redirect:/article/detail/" + id;
+        return "redirect:/article/detail/" + articleId;
     }
 
     /*
@@ -206,10 +207,10 @@ public class ArticleController {
     */
 
     @PostMapping("/delete/{id}")
-    public String deleteArticle(@PathVariable(value = "id") Integer id, Principal principal, RedirectAttributes redirectAttributes) {
-        Article article = articleService.getArticle(id);
-        articleService.verifyArticleAuthor(article, principal, id);
-        articleService.deleteArticle(id);
+    public String deleteArticle(@PathVariable(value = "id") Integer articleId, Principal principal, RedirectAttributes redirectAttributes) {
+        Article article = articleService.getArticle(articleId);
+        articleService.verifyArticleAuthor(article, principal, articleId);
+        articleService.deleteArticle(articleId);
         redirectAttributes.addFlashAttribute(SUCCESS_MSG, SUCCESS_DELETE);
         return "redirect:/article/list";
     }

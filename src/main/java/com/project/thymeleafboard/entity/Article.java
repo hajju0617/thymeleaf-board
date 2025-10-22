@@ -15,7 +15,7 @@ public class Article {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(length = 200, nullable = false)
+    @Column(length = 100, nullable = false)
     private String title;
 
     @Column(columnDefinition = "TEXT", nullable = false)

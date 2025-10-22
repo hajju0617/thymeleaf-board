@@ -32,8 +32,12 @@
                     </tr>
                     </tbody>
                 </table>
+                <div class="d-flex justify-content-end">
+                    <a href="#comments" class="btn btn-outline-primary btn-sm">댓글 보러가기</a>
+                </div>
             </div>
         </div>
+
 
         <div class="card my-3">
             <div class="card-body">
@@ -68,7 +72,7 @@
             </div>
         </div>
         <!-- 댓글 개수 표시. -->
-        <h5 class="border-bottom my-3 py-2" th:text="|${#lists.size(article.commentList)}개의 댓글이 있습니다.|"></h5>
+        <h5 id="comments" class="border-bottom my-3 py-2" th:text="|${#lists.size(article.commentList)}개의 댓글이 있습니다.|"></h5>
         <form th:action="@{|/article/detail/${article.id}|}" method="get" class="d-flex align-items-center gap-2 mb-3">
             <input type="hidden" name="page" th:value="${page}" />
             <input type="hidden" name="size" th:value="${size}" />
@@ -106,12 +110,13 @@
                                 <span class="badge rounded-pill bg-dark ms-1 vote-count" th:text="${#lists.size(comment.voter)}"></span>
                             </button>
                             <a th:href="@{|/comment/modify/${comment.id}|}" class="btn btn-outline-success ms-1"
-                               sec:authorize="isAuthenticated()" th:if="${article.author != null and #authentication.getPrincipal().getUsername() == comment.getAuthor().username}"
+                               sec:authorize="isAuthenticated()"
+                               th:if="${comment.author != null and #authentication.getPrincipal().getUsername() == comment.getAuthor().username}"
                                th:text="수정">
                             </a>
                             <form th:id="'commentDeleteForm_' + ${comment.id}" th:action="@{|/comment/delete/${comment.id}|}" method="post"
                                   sec:authorize="isAuthenticated()"
-                                  th:if="${article.author != null and #authentication.getPrincipal().getUsername() == article.getAuthor().username}"
+                                  th:if="${comment.author != null and #authentication.getPrincipal().getUsername() == comment.getAuthor().username}"
                                   class="d-inline">
                                 <button type="button" class="btn btn-outline-danger ms-1"
                                         th:onclick="|confirmDelete('commentDeleteForm_' + ${comment.id})|">
@@ -137,7 +142,7 @@
         </div>
 
         <!-- 댓글 작성 -->
-        <form th:action="@{|/comment/create/${article.id}|}" method="post" th:object="${commentDto}" class="my-3">
+        <form th:action="@{|/comment/create/${article.id}|}" method="post" th:object="${commentDto}" class="my-3" id="commentForm" th:attr="data-error=${#fields.hasErrors('content')}">
             <div th:replace="~{binding_result_errors :: bindingResultErrorsFragment}"></div>
             <textarea sec:authorize="isAnonymous()" disabled placeholder="댓글을 작성하려면 로그인이 필요해요." th:field="*{content}" rows="7" class="form-control" style="resize: none"></textarea>
             <textarea sec:authorize="isAuthenticated()" th:field="*{content}" rows="7" class="form-control" style="resize: none"></textarea>
@@ -179,6 +184,8 @@
 <script>
     const csrfToken = document.querySelector("meta[name='_csrf']").content;
     const csrfHeader = document.querySelector("meta[name='_csrf_header']").content;
+
+    const commentForm = document.getElementById('commentForm');
 
     document.querySelectorAll('.vote-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -222,13 +229,19 @@
             })
             .catch(err => console.error(err));
         })
-    })
 
+    })
     function confirmDelete(formId) {
         // console.log(document.getElementById(formId));
         // console.log(formId);
         if (confirm("정말 삭제하시겠습니까?")) {
             document.getElementById(formId).submit();
         }
+
+    }
+    if (commentForm != null && commentForm.dataset.error === "true") {
+        console.log(commentForm.dataset.error)
+        commentForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        commentForm.querySelector('textarea').focus();
     }
 </script>
