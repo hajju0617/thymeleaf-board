@@ -30,7 +30,7 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
 
 
-    public Page<Article> getArticleList(int page, int size, String sortType) {
+    public Page<Article> getArticleList(int page, int size, String sortType, String searchType, String keyword) {
         List<Sort.Order> orderList = new ArrayList<>();
         switch (sortType) {
             case "vote" -> orderList.add(Sort.Order.desc("countVote"));
@@ -42,12 +42,16 @@ public class ArticleService {
             orderList.add(Sort.Order.desc("createDate"));
         }
         Pageable pageable = PageRequest.of(page, size, Sort.by(orderList));
-        Page<Article> articlePage = articleRepository.findAll(pageable);
-        if (articlePage.getContent().isEmpty()) {
-            log.warn("size : {}, page : {}", size, page);
-            throw new InvalidPageException(ERROR_PAGE_OUT_OF_ARTICLE_RANGE);
+        if (keyword.trim().isEmpty()) {
+            Page<Article> articlePage = articleRepository.findAll(pageable);
+            if (articlePage.getContent().isEmpty()) {
+                log.warn("size : {}, page : {}", size, page);
+                throw new InvalidPageException(ERROR_PAGE_OUT_OF_ARTICLE_RANGE);
+            }
+            return articlePage;
+        } else {
+            return articleRepository.findAllByKeyword(keyword, searchType, pageable);
         }
-        return articlePage;
     }
 
 
@@ -125,6 +129,13 @@ public class ArticleService {
         final Set<String> sorts = Set.of("vote", "view", "date");
         if (!sorts.contains(sortType)) {
             throw new InvalidValueException(ERROR_INVALID_SORT_TYPE);
+        }
+    }
+
+    public void validateArticleSearchType(String searchType) {
+        final Set<String> sorts = Set.of("title_content", "title", "author", "comment");
+        if (!sorts.contains(searchType)) {
+            throw new InvalidValueException(ERROR_SEARCH_OPTION);
         }
     }
 

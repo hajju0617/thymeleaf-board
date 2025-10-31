@@ -185,7 +185,7 @@
     const csrfToken = document.querySelector("meta[name='_csrf']").content;
     const csrfHeader = document.querySelector("meta[name='_csrf_header']").content;
 
-    const commentForm = document.getElementById('commentForm');
+    const commentFormEl = document.getElementById('commentForm');
 
     document.querySelectorAll('.vote-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -239,9 +239,9 @@
         }
 
     }
-    if (commentForm != null && commentForm.dataset.error === "true") {
-        console.log(commentForm.dataset.error)
-        commentForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        commentForm.querySelector('textarea').focus();
+    if (commentFormEl != null && commentFormEl.dataset.error === "true") {
+        console.log(commentFormEl.dataset.error)
+        commentFormEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        commentFormEl.querySelector('textarea').focus();
     }
 </script>

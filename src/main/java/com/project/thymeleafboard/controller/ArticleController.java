@@ -5,6 +5,7 @@ import com.project.thymeleafboard.dto.CommentDto;
 import com.project.thymeleafboard.entity.Article;
 import com.project.thymeleafboard.entity.Comment;
 import com.project.thymeleafboard.entity.SiteUser;
+import com.project.thymeleafboard.exception.InvalidValueException;
 import com.project.thymeleafboard.service.ArticleService;
 import com.project.thymeleafboard.service.CommentService;
 import com.project.thymeleafboard.service.UserService;
@@ -39,21 +40,30 @@ public class ArticleController {
         model : 뷰 템플릿에서 사용할 객체를 넘겨주기 위해서.
         page : 클라이언트에서 요청한 페이지 번호.
         size : 페이지당 게시글 수.
-        sortType : 정렬 기준
+        sortType : 정렬 기준.
+        searchType : 검색 옵션.
+        keyword : 검색어.
 
     */
     @GetMapping("/list")
     public String articleList(Model model,
                               @RequestParam(value = "page", defaultValue = "0") int page,
                               @RequestParam(value = "size", defaultValue = "10") int size,
-                              @RequestParam(value = "sortType", defaultValue = "date") String sortType) {
+                              @RequestParam(value = "sortType", defaultValue = "date") String sortType,
+                              @RequestParam(value = "searchType", defaultValue = "title_content") String searchType,
+                              @RequestParam(value = "keyword", defaultValue = "") String keyword) {
         articleService.validateArticlePageNum(page);
         articleService.validateArticlePageSize(size);
         articleService.validateArticlePageSort(sortType);
-        Page<Article> articlePage = articleService.getArticleList(page, size, sortType);
+        articleService.validateArticleSearchType(searchType);
+        Page<Article> articlePage = articleService.getArticleList(page, size, sortType, searchType, keyword);
         model.addAttribute("articlePage", articlePage);
         model.addAttribute("size", size);
         model.addAttribute("sortType", sortType);
+        if (!keyword.trim().isEmpty()) {
+            model.addAttribute("searchType", searchType);
+            model.addAttribute("keyword", keyword);
+        }
         return "article_list";
     }
 
@@ -69,7 +79,7 @@ public class ArticleController {
         page : 상세 조회 페이지에서 목록으로 되돌아갈 때 기존 값(들어왔던 페이지) 유지하려면 필요함.
         size : 상세 조회 페이지에서 목록으로 되돌아갈 때 기존 값(1페이당 글 개수) 유지하려면 필요함.
         sortType : 상세 조회 페이지에서 목록으로 되돌아갈 때 기존 값(페이지 정렬) 유지하려면 필요함.
-        cmtSortType : 댓글 페이지 번호.
+        cmtSortType : 댓글 페이지 정렬.
     */
     @GetMapping("/detail/{id}")
     public String articleDetail(Model model, @PathVariable("id") Integer articleId, CommentDto commentDto,

@@ -20,8 +20,10 @@ public class GlobalConst {
     public static final String TITLE_REQUIRED = "제목을 입력해 주세요.";
     public static final String ERROR_INVALID_LIST_SIZE = "목록 사이즈는 '10, 20, 40, 50' 중 하나여야 해요.";
     public static final String ERROR_INVALID_SORT_TYPE = "정렬 기준은 '최신순, 추천순, 조회수순' 중 하나여야 해요.";
+    public static final String ERROR_SEARCH_OPTION = "검색 옵션은 '제목+내용, 제목만, 글 작성자, 댓글 내용'중 하나여야 해요.";
     public static final String ERROR_ARTICLE_NOT_FOUND = "요청하신 게시글을 찾을 수 없어요.";
     public static final String ERROR_PAGE_OUT_OF_ARTICLE_RANGE = "게시글이 존재하지 않는 페이지예요.";
+    public static final String ERROR_SEARCH_KEYWORD = "검색어를 입력해 주세요.";
 
     // Comment  ========================================================================================================
     public static int commentPageSize = 5;
