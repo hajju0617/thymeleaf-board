@@ -5,7 +5,6 @@ import com.project.thymeleafboard.dto.CommentDto;
 import com.project.thymeleafboard.entity.Article;
 import com.project.thymeleafboard.entity.Comment;
 import com.project.thymeleafboard.entity.SiteUser;
-import com.project.thymeleafboard.exception.InvalidValueException;
 import com.project.thymeleafboard.service.ArticleService;
 import com.project.thymeleafboard.service.CommentService;
 import com.project.thymeleafboard.service.UserService;
@@ -52,10 +51,7 @@ public class ArticleController {
                               @RequestParam(value = "sortType", defaultValue = "date") String sortType,
                               @RequestParam(value = "searchType", defaultValue = "title_content") String searchType,
                               @RequestParam(value = "keyword", defaultValue = "") String keyword) {
-        articleService.validateArticlePageNum(page);
-        articleService.validateArticlePageSize(size);
-        articleService.validateArticlePageSort(sortType);
-        articleService.validateArticleSearchType(searchType);
+        articleService.validateArticleListParams(page, size, sortType, searchType);
         Page<Article> articlePage = articleService.getArticleList(page, size, sortType, searchType, keyword);
         model.addAttribute("articlePage", articlePage);
         model.addAttribute("size", size);
@@ -88,8 +84,7 @@ public class ArticleController {
                                 @RequestParam(value = "size", defaultValue = "10") int size,
                                 @RequestParam(value = "sortType", defaultValue = "date") String sortType,
                                 @RequestParam(value = "cmt-sortType", defaultValue = "date") String cmtSortType) {
-        articleService.validateArticlePageNum(page);
-        articleService.validateArticlePageSize(size);
+        articleService.validateArticleDetailParams(page, size, sortType);
         Article article = articleService.getArticleDetail(articleId);
         commentService.validateCommentPageNumber(article, commentPage, articleId, page, cmtSortType);
         Page<Comment> commentList = commentService.getCommentList(article, commentPage, cmtSortType);
@@ -151,7 +146,7 @@ public class ArticleController {
 
     @PostMapping("/vote/{id}")
     @ResponseBody
-    public ResponseEntity<Integer> articleVote(@PathVariable("id") Integer articleId, Principal principal) {
+    public ResponseEntity<Integer> voteArticle(@PathVariable("id") Integer articleId, Principal principal) {
         Article article = articleService.getArticle(articleId);
         SiteUser siteUser = userService.findByUsernameOrThrow(principal.getName());
         articleService.toggleVoteArticle(article, siteUser);

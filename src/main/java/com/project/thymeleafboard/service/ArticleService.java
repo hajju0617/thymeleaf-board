@@ -112,27 +112,40 @@ public class ArticleService {
         articleRepository.deleteById(id);
     }
 
-    public void validateArticlePageNum(int page) {
+    public void validateArticleListParams(int page, int size, String sortType, String searchType) {
+        validateArticlePageNum(page);
+        validateArticlePageSize(size);
+        validateArticlePageSort(sortType);
+        validateArticleSearchType(searchType);
+    }
+
+    public void validateArticleDetailParams(int page, int size, String sortType) {
+        validateArticlePageNum(page);
+        validateArticlePageSize(size);
+        validateArticlePageSort(sortType);
+    }
+
+    private void validateArticlePageNum(int page) {
         if (page < 0) {
             throw new InvalidPageException(ERROR_NEGATIVE_PAGE_NUMBER);
         }
     }
 
-    public void validateArticlePageSize(int size) {
+    private void validateArticlePageSize(int size) {
         final Set<Integer> ALLOWED_SIZES = Set.of(10, 20, 40, 50);
         if (!ALLOWED_SIZES.contains(size)) {
             throw new InvalidValueException(ERROR_INVALID_LIST_SIZE);
         }
     }
 
-    public void validateArticlePageSort(String sortType) {
+    private void validateArticlePageSort(String sortType) {
         final Set<String> sorts = Set.of("vote", "view", "date");
         if (!sorts.contains(sortType)) {
             throw new InvalidValueException(ERROR_INVALID_SORT_TYPE);
         }
     }
 
-    public void validateArticleSearchType(String searchType) {
+    private void validateArticleSearchType(String searchType) {
         final Set<String> sorts = Set.of("title_content", "title", "author", "comment");
         if (!sorts.contains(searchType)) {
             throw new InvalidValueException(ERROR_SEARCH_OPTION);
