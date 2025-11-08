@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -127,6 +128,11 @@ public class GlobalExceptionHandler {
         return "redirect:/article/list";
     }
 
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public String handleHttpRequestMethodNotSupportedException(RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute(ERROR_MSG, "비정상적인 접근이에요.");
+        return "redirect:/article/list";
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e, HttpServletRequest httpServletRequest) {

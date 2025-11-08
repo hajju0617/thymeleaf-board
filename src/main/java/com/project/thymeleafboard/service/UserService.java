@@ -8,6 +8,7 @@ import com.project.thymeleafboard.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.UnknownServiceException;
 import java.security.Principal;
@@ -22,6 +23,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public void createUser(UserDto userDto) {
         SiteUser user = SiteUser.create(userDto, encodePassword(userDto.getPassword()));
         userRepository.save(user);
@@ -47,13 +49,13 @@ public class UserService {
         return userRepository.findByUsernameAndEmail(username, email);
     }
 
-    private String encodePassword(String rawPassword) {
-        return passwordEncoder.encode(rawPassword);
-    }
-
+    @Transactional
     public void changePassword(SiteUser siteUser, String tempPassword) {
         siteUser.updatePassword(encodePassword(tempPassword));
         userRepository.save(siteUser);
+    }
+    private String encodePassword(String rawPassword) {
+        return passwordEncoder.encode(rawPassword);
     }
 
     public void isLoggedIn(Principal principal) {

@@ -24,6 +24,10 @@ repositories {
 }
 
 dependencies {
+    // Jsoup
+    implementation 'org.jsoup:jsoup:1.18.1'
+    // Markdown
+    implementation 'org.commonmark:commonmark:0.21.0'
     // Email
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     // Spring Security

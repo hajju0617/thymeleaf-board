@@ -14,14 +14,11 @@
             </div>
             <div class="mb-3">
                 <label for="content" class="form-label">내용</label>
-                <textarea placeholder="내용을 입력해 주세요." th:field="*{content}" class="form-control" rows="10" style="resize: none"></textarea>
+                <textarea placeholder="내용을 입력해 주세요." th:field="*{content}" class="form-control" rows="20" style="resize: none"></textarea>
             </div>
             <div class="text-end">
                 <button type="submit" class="btn btn-outline-primary my-2" th:text="${mode == 'create'} ? '등록하기' : '수정하기'"></button>
             </div>
         </form>
     </div>
-<!--    <script>-->
-<!--        var mde = new SimpleMDE({ element: document.getElementById("content") });-->
-<!--    </script>-->
 </html>

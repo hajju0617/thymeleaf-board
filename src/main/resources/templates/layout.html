@@ -8,7 +8,17 @@
     <!-- 부트스트랩 CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous"/>
     <!-- simpleMDE -->
-<!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
+    <!-- highlight.JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/styles/default.min.css">
+    <style>
+        .card-text img {
+            /* 이미지가 부모 요소(.card-text)의 너비를 초과하지 않도록 100%로 제한하기 위해서. */
+            max-width: 100%;
+            /* 이미지 비율 유지를 위해 높이는 자동으로 설정. */
+            height: auto;
+        }
+    </style>
     <title>Thymeleaf 게시판</title>
 </head>
 <body>
@@ -45,6 +55,10 @@
 <!-- 부트스트랩 JS CDN -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 <!-- simpleMDE -->
-<!--<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>-->
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script src="/js/simplemde-init.js"></script>
+<!-- highlight.JS -->
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.11.1/build/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
 </body>
 </html>

@@ -41,7 +41,7 @@
 
         <div class="card my-3">
             <div class="card-body">
-                <div class="card-text" style="white-space: pre-line;" th:text="${article.content}"></div>
+                <div class="card-text" th:utext="${@markdown.parseMarkdown(article.content)}"></div>
 
                 <div class="mt-auto pt-2">
                     <div>
@@ -95,7 +95,7 @@
             <!-- HTML 앵커(anchor) 태그를 이용한 '페이지 내 위치 표시용' -->
             <a th:id="|comment_${comment.id}|"></a>
             <div class="card-body">
-                <div class="card-text" style="white-space: pre-line;" th:text="${comment.content}"></div>
+                <div class="card-text" th:utext="${@markdown.parseMarkdown(comment.content)}"></div>
                     <div class="border-top my-2"></div>
 
                 <div class="mt-auto pt-2">
@@ -145,7 +145,7 @@
         <form th:action="@{|/comment/create/${article.id}|}" method="post" th:object="${commentDto}" class="my-3" id="commentForm" th:attr="data-error=${#fields.hasErrors('content')}">
             <div th:replace="~{binding_result_errors :: bindingResultErrorsFragment}"></div>
             <textarea sec:authorize="isAnonymous()" disabled placeholder="댓글을 작성하려면 로그인이 필요해요." th:field="*{content}" rows="7" class="form-control" style="resize: none"></textarea>
-            <textarea sec:authorize="isAuthenticated()" th:field="*{content}" rows="7" class="form-control" style="resize: none"></textarea>
+            <textarea sec:authorize="isAuthenticated()" th:field="*{content}" rows="12" class="form-control" style="resize: none"></textarea>
             <div class="d-flex justify-content-between">
                 <a th:href="@{|/article/list?page=${page}&size=${size}&sortType=${sortType}|}" class="btn btn-outline-success my-2">목록</a>
                 <button type="submit" class="btn btn-outline-primary my-2">댓글 등록하기</button>
