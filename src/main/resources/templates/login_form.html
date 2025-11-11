@@ -9,7 +9,15 @@
         <form th:action="@{/user/login}" method="post">
             <!--  로그인에 실패할 경우 /user/login?error 처럼 error를 전달하는데 이를 활용하기 위해서. (로그인에 실패할 경우 시큐리티에 의해 로그인 페이지로 리다이렉트 됨.) -->
             <div th:if="${param.error}">
-                <div class="alert alert-danger alert-dismissible fade show">ID 또는 비밀번호를 확인해 주세요.
+                <div class="alert alert-danger alert-dismissible fade show" th:switch="${param.error[0]}">
+                    <!-- Oauth2 로그인시 DB에 해당 이메일이 이미 존재할 경우. -->
+                    <span th:case="'email_exists'">
+                        이미 가입된 이메일입니다. 일반 로그인을 이용해 주세요.
+                    </span>
+                    <!-- 기타 (폼 로그인 실패, 비밀번호 불일치 등) -->
+                    <span th:case="*">
+                        ID 또는 비밀번호를 확인해 주세요.
+                    </span>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             </div>

@@ -32,16 +32,16 @@ public class CommonUtil {
     }
 
     /*
-        6자리 랜덤 숫자. (인증 번호)
+        랜덤 숫자. (인증 번호 6자리, 소셜로그인시 접미사 8자리)
     */
-    public static String makeRandomNumber() {
-        int length = 6;
+    public static String makeRandomNumber(int length) {
         StringBuilder sb = new StringBuilder(length);
         for (int i = 0; i < length; i++) {
             sb.append((int) (Math.random() * 10));
         }
         return sb.toString();
     }
+
 
     /*
         12 자리 랜덤 문자열. (비밀번호)

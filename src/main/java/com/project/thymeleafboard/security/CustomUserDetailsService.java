@@ -23,6 +23,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (optionalSiteUser.isEmpty()) {
             throw new UsernameNotFoundException(ERROR_USER_NOT_FOUND_BY_USERNAME);
         }
-        return new CustomUserDetails(optionalSiteUser.get());
+        return new CustomUser(optionalSiteUser.get());
     }
 }

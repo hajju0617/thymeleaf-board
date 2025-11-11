@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static com.project.thymeleafboard.common.GlobalConst.FROM_EMAIL;
+import static com.project.thymeleafboard.common.GlobalConst.authCodeSize;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +30,7 @@ public class MailService {
     public void sendVerificationMail(SendMailDto sendMailDto) {
         String toMail = sendMailDto.getEmail();
         String title = "[인증번호] 회원가입을 위한 인증번호입니다.";
-        String authNumber = CommonUtil.makeRandomNumber();
+        String authNumber = CommonUtil.makeRandomNumber(authCodeSize);
         String content =
                 "안녕하세요." + 	//html 형식
                         "<br><br>" +

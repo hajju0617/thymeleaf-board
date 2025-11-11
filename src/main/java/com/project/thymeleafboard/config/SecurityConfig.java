@@ -1,6 +1,8 @@
 package com.project.thymeleafboard.config;
 
 import com.project.thymeleafboard.security.CustomAuthenticationEntryPoint;
+import com.project.thymeleafboard.security.CustomOAuth2FailureHandler;
+import com.project.thymeleafboard.security.CustomOauth2UserService;
 import com.project.thymeleafboard.security.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +24,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class SecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomOauth2UserService customOauth2UserService;
+    private final CustomOAuth2FailureHandler customOAuth2FailureHandler;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
@@ -34,6 +38,9 @@ public class SecurityConfig {
                                 .anyRequest().permitAll())
                 .formLogin((formLogin -> formLogin.loginPage("/user/login")
                         .defaultSuccessUrl("/", false)))
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/user/login").defaultSuccessUrl("/")
+                        .failureHandler(customOAuth2FailureHandler).userInfoEndpoint(userinfoEndpoint -> userinfoEndpoint.userService(customOauth2UserService)))
                 .logout((logout -> logout.logoutRequestMatcher(new AntPathRequestMatcher("/user/logout"))
                         .logoutSuccessUrl("/article/list?logout")
                         .invalidateHttpSession(true)

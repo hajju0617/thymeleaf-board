@@ -44,9 +44,11 @@ public class GlobalConst {
     public static final String ERROR_USER_NOT_FOUND_BY_USERNAME = "입력하신 아이디로 가입되어 있는 사용자를 찾을 수 없어요.";
     public static final String ERROR_USER_NOT_FOUND_BY_USERNAME_AND_EMAIL = "입력하신 아이디와 이메일로 가입된 회원을 찾을 수 없어요.";
     public static final String ERROR_ALREADY_LOGGED_IN = "\"%s\" 계정으로 이미 로그인되어 있어요.";
+    public static final int oauth2UsernameSuffix = 8;
 
     // Email    ========================================================================================================
     public static final String FROM_EMAIL = "hajju0617@naver.com";
+    public static final int authCodeSize = 6;
     public static final String SUCCESS_EMAIL_VERIFICATION = "인증이 성공적으로 완료되었어요.";
     public static final String SUCCESS_TEMP_PASSWORD_SENT_EMAIL = "임시 비밀번호가 이메일로 발송되었어요.";
     public static final String ERROR_EMAIL_VERIFICATION = "인증 번호가 올바르지 않거나 만료되었어요.";
