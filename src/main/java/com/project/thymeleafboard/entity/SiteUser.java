@@ -46,9 +46,10 @@ public class SiteUser {
         this.email = email;
         this.createDate = LocalDateTime.now();
         this.role = userRole;
-        this.signUpProviderType = SignUpProviderType.GOOGLE;
+        this.signUpProviderType = signUpProviderType;
     }
 
+    // 일반 회원가입.
     private SiteUser(String username, String password, String email) {
         this(username,
             password,
@@ -57,6 +58,7 @@ public class SiteUser {
             "admin".equals(username) ? UserRole.ADMIN : UserRole.USER);
     }
 
+    // Oauth2 회원가입.
     private SiteUser(String username, String password, String email, SignUpProviderType signUpProviderType) {
         this(username, password, email, signUpProviderType, UserRole.USER);
     }

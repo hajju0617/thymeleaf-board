@@ -132,11 +132,16 @@ public class UserController {
             return "find_id";
         }
         Optional<SiteUser> optionalSiteUser = userService.findByEmail(findIdDto.getEmail());
-        if (optionalSiteUser.isEmpty()) {
-            bindingResult.rejectValue("email", "emailNotFound", EMAIL_NOT_FOUND);
-        } else {
+        if (optionalSiteUser.isPresent()) {
+            SiteUser siteUser = optionalSiteUser.get();
+            if (siteUser.getSignUpProviderType().name().equals("GOOGLE")) {
+                bindingResult.reject("oauth2IdFindNotAllowed", ERROR_OAUTH2_FIND_ID);
+                return "find_id";
+            }
             String maskedUsername = CommonUtil.maskUsername(optionalSiteUser.get().getUsername());
             model.addAttribute("username", maskedUsername);
+        } else {
+            bindingResult.rejectValue("email", "emailNotFound", EMAIL_NOT_FOUND);
         }
         return "find_id";
     }
@@ -167,9 +172,14 @@ public class UserController {
         }
         Optional<SiteUser> optionalSiteUser = userService.findByUsernameAndEmail(findPwDto.getUsername(), findPwDto.getEmail());
         if (optionalSiteUser.isPresent()) {
+            SiteUser siteUser = optionalSiteUser.get();
+            if (siteUser.getSignUpProviderType().name().equals("GOOGLE")) {
+                bindingResult.reject("oAuth2PasswordResetNotAllowed", ERROR_OAUTH2_PASSWORD_RESET);
+                return "find_pw";
+            }
             String tempPassword = CommonUtil.makeRandomPassword();
             mailService.sendTempPasswordMail(findPwDto.getEmail(), tempPassword);
-            userService.changePassword(optionalSiteUser.get(), tempPassword);
+            userService.changePassword(siteUser, tempPassword);
             redirectAttributes.addFlashAttribute(SUCCESS_MSG, SUCCESS_TEMP_PASSWORD_SENT_EMAIL);
         } else {
             bindingResult.reject("userNotFound", ERROR_USER_NOT_FOUND_BY_USERNAME_AND_EMAIL);

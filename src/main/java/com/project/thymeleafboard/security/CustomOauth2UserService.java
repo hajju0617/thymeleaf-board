@@ -4,6 +4,7 @@ import com.project.thymeleafboard.common.CommonUtil;
 import com.project.thymeleafboard.entity.SiteUser;
 import com.project.thymeleafboard.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -19,6 +20,8 @@ import static com.project.thymeleafboard.common.GlobalConst.oauth2UsernameSuffix
 @RequiredArgsConstructor
 public class CustomOauth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
     @Override
     public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(oAuth2UserRequest);
@@ -38,7 +41,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 String suffix = username.substring(1);
                 username = "g" + shuffle(suffix);
             }
-            String password = CommonUtil.makeRandomPassword();
+            String password = passwordEncoder.encode(CommonUtil.makeRandomPassword());
             SiteUser siteUser = SiteUser.createOauth2User(username, password, email, SignUpProviderType.GOOGLE);
             userRepository.save(siteUser);
             return new CustomUser(siteUser);

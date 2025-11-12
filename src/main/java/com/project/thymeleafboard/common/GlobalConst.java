@@ -45,6 +45,8 @@ public class GlobalConst {
     public static final String ERROR_USER_NOT_FOUND_BY_USERNAME_AND_EMAIL = "입력하신 아이디와 이메일로 가입된 회원을 찾을 수 없어요.";
     public static final String ERROR_ALREADY_LOGGED_IN = "\"%s\" 계정으로 이미 로그인되어 있어요.";
     public static final int oauth2UsernameSuffix = 8;
+    public static final String ERROR_OAUTH2_PASSWORD_RESET = "Google 간편 로그인으로 가입된 계정은 '비밀번호 찾기' 기능을 지원하지 않아요.";
+    public static final String ERROR_OAUTH2_FIND_ID = "Google 간편 로그인으로 가입된 계정은 '아이디 찾기' 기능을 지원하지 않아요.";
 
     // Email    ========================================================================================================
     public static final String FROM_EMAIL = "hajju0617@naver.com";

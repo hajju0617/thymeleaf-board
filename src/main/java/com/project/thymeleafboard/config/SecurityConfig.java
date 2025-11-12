@@ -54,12 +54,6 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
-    // PasswordEncoder 빈 등록. (BCryptPasswordEncoder : PasswordEncoder 구현체)
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
     // AuthenticationManager 빈 등록. (AuthenticationManager : 시큐리티의 인증을 처리함)
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
