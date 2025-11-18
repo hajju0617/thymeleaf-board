@@ -35,7 +35,7 @@ public class SecurityConfig {
                                                  "/article/vote/**", "/comment/vote/**",
                                                  "/article/modify/**", "/comment/modify/**",
                                                  "/article/delete/**", "/comment/delete/**",
-                                                 "/user/info", "/user/delete").authenticated()
+                                                 "/user/info", "/user/password/change", "/user/delete").authenticated()
                                 .anyRequest().permitAll())
                 .formLogin((formLogin -> formLogin.loginPage("/user/login")
                         .defaultSuccessUrl("/", false)))

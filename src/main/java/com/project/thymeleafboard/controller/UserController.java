@@ -266,6 +266,15 @@ public class UserController {
         return "user_delete_confirm";
     }
 
+    /*
+         회원 탈퇴 처리 메서드.
+
+         @Param
+         deleteUserDto : 사용자가 입력한 데이터.
+         RedirectAttributes : 리다이렉트(Redirect)시 데이터를 전달하는 역할.
+         principal : 현재 인증된 사용자(로그인한 사용자) 객체.
+         BindingResult : 데이터 바인딩(Data Binding)과 검증(Validation) 과정에서 발생한 오류 정보를 담아둠. (오류 컨테이너 역할) & 뷰 템플릿에서 오류를 출력할 수 있음.
+    */
     @PostMapping("/delete")
     public String deleteUser(@Valid DeleteUserDto deleteUserDto, BindingResult bindingResult,
                              RedirectAttributes redirectAttributes, Principal principal,
