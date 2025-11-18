@@ -1,6 +1,7 @@
 package com.project.thymeleafboard.repository;
 
 import com.project.thymeleafboard.entity.Article;
+import com.project.thymeleafboard.entity.SiteUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,6 +25,9 @@ public interface ArticleRepository extends JpaRepository<Article, Integer> {
     Page<Article> findAllByKeyword(@Param("keyword") String keyword,
                                    @Param("searchType") String searchType,
                                    Pageable pageable);
+
+    List<Article> findAllByVoter(SiteUser siteUser);
+    void deleteAllByAuthor(SiteUser siteUser);
 
 
     Article findByTitleAndContent(String title, String content);

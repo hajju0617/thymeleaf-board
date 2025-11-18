@@ -10,7 +10,7 @@
             <div th:replace="~{binding_result_errors :: bindingResultErrorsFragment}"></div>
             <div class="mb-3">
                 <label for="title" class="form-label">제목</label>
-                <input type="text" placeholder="제목을 입력해 주세요." th:field="*{title}" class="form-control">
+                <input type="text" placeholder="제목을 입력해 주세요." th:field="*{title}" class="form-control" autofocus>
             </div>
             <div class="mb-3">
                 <label for="content" class="form-label">내용</label>

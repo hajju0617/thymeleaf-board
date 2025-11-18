@@ -7,7 +7,7 @@
             <div th:replace="~{binding_result_errors :: bindingResultErrorsFragment}"></div>
             <div class="mb-3">
                 <label for="email" class="form-label">이메일</label>
-                <input type="email" th:field="*{email}" class="form-control" placeholder="이메일 주소를 입력해 주세요.">
+                <input type="email" th:field="*{email}" class="form-control" placeholder="이메일 주소를 입력해 주세요." autofocus>
             </div>
             <button type="submit" class="btn btn-outline-primary w-100">아이디 찾기</button>
         </form>

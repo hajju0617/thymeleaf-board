@@ -2,6 +2,7 @@ package com.project.thymeleafboard.repository;
 
 import com.project.thymeleafboard.entity.Article;
 import com.project.thymeleafboard.entity.Comment;
+import com.project.thymeleafboard.entity.SiteUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,4 +25,7 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
         LIMIT 1
     """)
     Optional<Integer> findPreviousCommentId(@Param("articleId") Integer articleId, @Param("CommentId") Integer CommentId);
+
+    List<Comment> findAllByVoter(SiteUser siteUser);
+    void deleteAllByAuthor(SiteUser siteUser);
 }

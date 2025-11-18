@@ -110,6 +110,14 @@ public class GlobalExceptionHandler {
         return "redirect:/article/detail/" + rpde.getId();
     }
 
+    @ExceptionHandler(OAuthPasswordChangeException.class)
+    public String handleOAuthPasswordChangeException(RedirectAttributes redirectAttributes,
+                                                     OAuthPasswordChangeException opce) {
+        log.info("Oauth2 사용자가 비밀번호 변경 요청 : {}", opce.getMessage());
+        redirectAttributes.addFlashAttribute(ERROR_MSG, opce.getMessage());
+        return "redirect:/user/info";
+    }
+
     @ExceptionHandler(AuthenticationException.class)
     public String handleAuthException(RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute(ERROR_MSG, "로그인이 필요해요.");
@@ -123,13 +131,15 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public String handleIllegalArgumentException(RedirectAttributes redirectAttributes) {
+    public String handleIllegalArgumentException(IllegalArgumentException iae, RedirectAttributes redirectAttributes, HttpServletRequest httpServletRequest) {
+        log.warn("잘못된 요청 : msg = {}, url = {}, query = {}", iae.getMessage(), httpServletRequest.getRequestURI(), httpServletRequest.getQueryString());
         redirectAttributes.addFlashAttribute(ERROR_MSG, "잘못된 요청이에요.");
         return "redirect:/article/list";
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public String handleHttpRequestMethodNotSupportedException(RedirectAttributes redirectAttributes) {
+    public String handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException hrmnse, RedirectAttributes redirectAttributes, HttpServletRequest httpServletRequest) {
+        log.warn("비정상적인 접근 : msg = {}, url = {}, query = {}", hrmnse.getMessage(), httpServletRequest.getRequestURI(), httpServletRequest.getQueryString());
         redirectAttributes.addFlashAttribute(ERROR_MSG, "비정상적인 접근이에요.");
         return "redirect:/article/list";
     }

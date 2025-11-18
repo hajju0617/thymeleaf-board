@@ -40,6 +40,9 @@
                     <a class="nav-link" th:href="@{/article/list?page=0&size=10}">게시판</a>
                 </li>
                 <li class="nav-item me-5">
+                    <a class="nav-link" sec:authorize="isAuthenticated()" th:href="@{/user/info}">마이페이지</a>
+                </li>
+                <li class="nav-item me-5">
                     <a class="nav-link" sec:authorize="isAnonymous()" th:href="@{/user/login}">로그인 / 회원가입</a>
                     <a class="nav-link" sec:authorize="isAuthenticated()" th:href="@{/user/logout}">로그아웃</a>
                 </li>

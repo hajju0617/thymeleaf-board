@@ -1,7 +1,8 @@
 package com.project.thymeleafboard.common;
 
 public class GlobalConst {
-    private GlobalConst() {    }
+    private GlobalConst() {
+    }
 
     // Common   ========================================================================================================
     public static final String SUCCESS_MSG = "successMsg";
@@ -34,6 +35,7 @@ public class GlobalConst {
     // User     ========================================================================================================
     public static final String USERNAME_REQUIRED = "아이디를 입력해 주세요. (영문 소문자와 숫자를 사용해서 5~15자리)";
     public static final String PW_REQUIRED = "비밀번호를 입력해 주세요. (최소 1개 이상의 영문 소문자와 숫자, 특수문자(!@#$%^&*)를 조합해서 8~20자리)";
+    public static final String CURRENT_PASSWORD = "현재 비밀번호를 입력해 주세요.";
     public static final String EMAIL_REQUIRED = "올바른 이메일을 입력해 주세요.";
     public static final String EMAIL_ALREADY_REGISTERED = "이미 가입되어 있는 이메일이에요.";
     public static final String USERNAME_ALREADY_REGISTERED = "이미 가입되어 있는 아이디예요.";
@@ -41,12 +43,22 @@ public class GlobalConst {
     public static final String SUCCESS_SIGNUP = "회원가입이 성공적으로 완료되었어요!";
     public static final String EMAIL_NOT_FOUND = "해당 이메일로 가입되어 있는 계정이 없어요. 이메일 주소를 다시 확인해 주세요.";
     public static final String PASSWORD_INCORRECT = "비밀번호가 서로 일치하지 않아요.";
-    public static final String ERROR_USER_NOT_FOUND_BY_USERNAME = "입력하신 아이디로 가입되어 있는 사용자를 찾을 수 없어요.";
+    public static final String CURRENT_PASSWORD_INCORRECT = "현재 비밀번호와 일치하지 않습니다.";
+    public static final String SUCCESS_PASSWORD_CHANGE = "비밀번호가 정상적으로 변경되었어요.";
+    public static final String ERROR_USER_NOT_FOUND = "사용자 정보를 찾을 수 없어요.";
     public static final String ERROR_USER_NOT_FOUND_BY_USERNAME_AND_EMAIL = "입력하신 아이디와 이메일로 가입된 회원을 찾을 수 없어요.";
     public static final String ERROR_ALREADY_LOGGED_IN = "\"%s\" 계정으로 이미 로그인되어 있어요.";
     public static final int oauth2UsernameSuffix = 8;
     public static final String ERROR_OAUTH2_PASSWORD_RESET = "Google 간편 로그인으로 가입된 계정은 '비밀번호 찾기' 기능을 지원하지 않아요.";
     public static final String ERROR_OAUTH2_FIND_ID = "Google 간편 로그인으로 가입된 계정은 '아이디 찾기' 기능을 지원하지 않아요.";
+    public static final String ERROR_OAUTH2_PASSWORD_CHANGE = "Google 간편 로그인으로 가입된 계정은 '비밀번호 변경' 기능을 지원하지 않아요.";
+    public static final String USER_DELETE_MESSAGE = "회원 탈퇴 시 주의사항을 숙지하였으며, 계정 및 모든 데이터 삭제에 동의합니다.";
+    public static final String ERROR_DELETE_MESSAGE_INCORRECT = "주의사항 확인 문구가 일치하지 않습니다.";
+    public static final String SUCCESS_ACCOUNT_DELETION = "회원 탈퇴가 정상적으로 처리되었습니다. 이용해 주셔서 감사합니다.";
+    public static final String ERROR_ACCOUNT_DELETION_BEFORE_24H = "회원가입 후 24시간이 지나야 회원 탈퇴가 가능합니다.";
+
+    public static final String ERROR_USER_ACCESS_DENIED = "접근 권한이 없어요.";
+
 
     // Email    ========================================================================================================
     public static final String FROM_EMAIL = "hajju0617@naver.com";

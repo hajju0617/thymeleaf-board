@@ -34,7 +34,8 @@ public class SecurityConfig {
                                 .requestMatchers("/article/create", "/comment/create/**",
                                                  "/article/vote/**", "/comment/vote/**",
                                                  "/article/modify/**", "/comment/modify/**",
-                                                 "/article/delete/**", "/comment/delete/**").authenticated()
+                                                 "/article/delete/**", "/comment/delete/**",
+                                                 "/user/info", "/user/delete").authenticated()
                                 .anyRequest().permitAll())
                 .formLogin((formLogin -> formLogin.loginPage("/user/login")
                         .defaultSuccessUrl("/", false)))

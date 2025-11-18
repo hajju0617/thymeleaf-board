@@ -1,15 +1,20 @@
 package com.project.thymeleafboard.controller;
 
 import com.project.thymeleafboard.common.CommonUtil;
-import com.project.thymeleafboard.dto.FindIdDto;
-import com.project.thymeleafboard.dto.FindPwDto;
-import com.project.thymeleafboard.dto.UserDto;
+import com.project.thymeleafboard.dto.*;
 import com.project.thymeleafboard.entity.SiteUser;
+import com.project.thymeleafboard.exception.OAuthPasswordChangeException;
 import com.project.thymeleafboard.service.MailService;
 import com.project.thymeleafboard.service.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -134,7 +139,7 @@ public class UserController {
         Optional<SiteUser> optionalSiteUser = userService.findByEmail(findIdDto.getEmail());
         if (optionalSiteUser.isPresent()) {
             SiteUser siteUser = optionalSiteUser.get();
-            if (siteUser.getSignUpProviderType().name().equals("GOOGLE")) {
+            if ("GOOGLE".equals(siteUser.getSignUpProviderType().name())) {
                 bindingResult.reject("oauth2IdFindNotAllowed", ERROR_OAUTH2_FIND_ID);
                 return "find_id";
             }
@@ -173,7 +178,7 @@ public class UserController {
         Optional<SiteUser> optionalSiteUser = userService.findByUsernameAndEmail(findPwDto.getUsername(), findPwDto.getEmail());
         if (optionalSiteUser.isPresent()) {
             SiteUser siteUser = optionalSiteUser.get();
-            if (siteUser.getSignUpProviderType().name().equals("GOOGLE")) {
+            if ("GOOGLE".equals(siteUser.getSignUpProviderType().name())) {
                 bindingResult.reject("oAuth2PasswordResetNotAllowed", ERROR_OAUTH2_PASSWORD_RESET);
                 return "find_pw";
             }
@@ -186,5 +191,103 @@ public class UserController {
             return "find_pw";
         }
         return "redirect:/user/login";
+    }
+
+    /*
+        마이페이지 처리 메서드.
+
+         @Param
+         principal : 현재 인증된 사용자(로그인한 사용자) 객체.
+    */
+    @GetMapping("/info")
+    public String myPage(Model model, Principal principal) {
+        SiteUser siteUser = userService.findByUsernameOrThrow(principal.getName());
+        model.addAttribute("user", siteUser);
+        return "user_info";
+    }
+
+    /*
+         비밀번호 변경 뷰 페이지 메서드.
+
+         @Param
+         changePwDto : 뷰 페이지에서 th:object 에서 사용.
+         principal : 현재 인증된 사용자(로그인한 사용자) 객체.
+    */
+    @GetMapping("/password/change")
+    public String changePassword(ChangePwDto changePwDto, Principal principal) {
+        SiteUser siteUser = userService.findByUsernameOrThrow(principal.getName());
+        if ("GOOGLE".equals(siteUser.getSignUpProviderType().name())) {
+            throw new OAuthPasswordChangeException(ERROR_OAUTH2_PASSWORD_CHANGE);
+        }
+        return "change_pw_form";
+    }
+
+    /*
+         비밀번호 변경 처리 메서드.
+
+         @Param
+         changePwDto : 사용자가 입력한 데이터.
+         RedirectAttributes : 리다이렉트(Redirect)시 데이터를 전달하는 역할.
+         principal : 현재 인증된 사용자(로그인한 사용자) 객체.
+         BindingResult : 데이터 바인딩(Data Binding)과 검증(Validation) 과정에서 발생한 오류 정보를 담아둠. (오류 컨테이너 역할) & 뷰 템플릿에서 오류를 출력할 수 있음.
+    */
+    @PostMapping("/password/change")
+    public String changePassword(@Valid ChangePwDto changePwDto, BindingResult bindingResult,
+                                 RedirectAttributes redirectAttributes, Principal principal) {
+        if (bindingResult.hasErrors()) {
+            return "change_pw_form";
+        }
+        SiteUser siteUser = userService.findByUsernameOrThrow(principal.getName());
+        if (userService.isPasswordIncorrect(changePwDto.getCurrentPassword(), siteUser.getPassword())) {
+            bindingResult.reject("currentPasswordIncorrect", CURRENT_PASSWORD_INCORRECT);
+            return "change_pw_form";
+        } else if (!changePwDto.getNewPassword().equals(changePwDto.getConfirmPassword())) {
+            bindingResult.reject("passwordIncorrect", PASSWORD_INCORRECT);
+            return "change_pw_form";
+        } else {
+            userService.changePassword(siteUser, changePwDto.getNewPassword());
+        }
+        redirectAttributes.addFlashAttribute(SUCCESS_MSG, SUCCESS_PASSWORD_CHANGE);
+        return "redirect:/user/info";
+    }
+
+    /*
+         회원 탈퇴 뷰 페이지 메서드.
+    
+         @Param
+         deleteUserDto : 뷰 페이지에서 th:object 에서 사용.
+         principal : 현재 인증된 사용자(로그인한 사용자) 객체.
+    */
+    @GetMapping("/delete")
+    public String deleteUser(Model model, DeleteUserDto deleteUserDto, Principal principal) {
+        SiteUser siteUser = userService.findByUsernameOrThrow(principal.getName());
+        boolean isLocalUser = "LOCAL".equals(siteUser.getSignUpProviderType().name());
+        model.addAttribute("isLocalUser", isLocalUser);
+        return "user_delete_confirm";
+    }
+
+    @PostMapping("/delete")
+    public String deleteUser(@Valid DeleteUserDto deleteUserDto, BindingResult bindingResult,
+                             RedirectAttributes redirectAttributes, Principal principal,
+                             HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+        if (bindingResult.hasErrors()) {
+            return "user_delete_confirm";
+        }
+        SiteUser siteUser = userService.findByUsernameOrThrow(principal.getName());
+        if ("LOCAL".equals(siteUser.getSignUpProviderType().name()) && userService.isPasswordIncorrect(deleteUserDto.getPassword(), siteUser.getPassword())) {
+            bindingResult.reject("currentPasswordIncorrect", CURRENT_PASSWORD_INCORRECT);
+            return "user_delete_confirm";
+        } else if (userService.isDeleteMessageIncorrect(deleteUserDto.getMessage())) {
+            bindingResult.reject("deleteMessageIncorrect", ERROR_DELETE_MESSAGE_INCORRECT);
+            return "user_delete_confirm";
+        } else if (userService.isRegisteredForLessThan24(siteUser)) {
+            redirectAttributes.addFlashAttribute(ERROR_MSG, ERROR_ACCOUNT_DELETION_BEFORE_24H);
+            return "redirect:/user/info";
+        } else {
+            userService.deleteUser(siteUser);
+        }
+        redirectAttributes.addFlashAttribute(SUCCESS_MSG, SUCCESS_ACCOUNT_DELETION);
+        userService.clearSessionAndCookies(httpServletRequest, httpServletResponse);
+        return "redirect:/article/list";
     }
 }

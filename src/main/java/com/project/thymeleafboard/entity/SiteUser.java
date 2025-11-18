@@ -52,19 +52,19 @@ public class SiteUser {
     // 일반 회원가입.
     private SiteUser(String username, String password, String email) {
         this(username,
-            password,
-            email,
-            SignUpProviderType.LOCAL,
-            "admin".equals(username) ? UserRole.ADMIN : UserRole.USER);
+             password,
+             email,
+             SignUpProviderType.LOCAL,
+             "admin".equals(username) ? UserRole.ADMIN : UserRole.USER);
+    }
+
+    public static SiteUser create(UserDto userDto, String password) {
+        return new SiteUser(userDto.getUsername(), password, userDto.getEmail());
     }
 
     // Oauth2 회원가입.
     private SiteUser(String username, String password, String email, SignUpProviderType signUpProviderType) {
         this(username, password, email, signUpProviderType, UserRole.USER);
-    }
-
-    public static SiteUser create(UserDto userDto, String password) {
-        return new SiteUser(userDto.getUsername(), password, userDto.getEmail());
     }
 
     public static SiteUser createOauth2User(String username, String password, String email, SignUpProviderType signUpProviderType) {

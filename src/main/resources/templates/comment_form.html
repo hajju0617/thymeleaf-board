@@ -10,7 +10,7 @@
         <div th:replace="~{binding_result_errors :: bindingResultErrorsFragment}"></div>
         <div class="mb-3">
             <label for="content" class="form-label">내용</label>
-            <textarea placeholder="내용을 입력해 주세요." th:field="*{content}" class="form-control" rows="10" style="resize: none"></textarea>
+            <textarea placeholder="내용을 입력해 주세요." th:field="*{content}" class="form-control" rows="10" style="resize: none" autofocus></textarea>
         </div>
         <div class="text-end">
             <button type="submit" class="btn btn-outline-primary my-2">수정하기</button>

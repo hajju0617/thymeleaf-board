@@ -1,0 +1,39 @@
+<!-- layout.html을 상속 받도록 설정. -->
+<html layout:decorate="~{layout}">
+<!-- 부모 템플릿(layout.html)의 layout:fragment="content" 부분에 삽입되도록 설정. -->
+<div layout:fragment="content" class="container my-3" style="max-width: 900px">
+    <h4 class="my-3 border-bottom pb-2">회원 탈퇴</h4>
+    <div class="card my-4">
+        <div class="card-header bg-danger text-white">
+            <h5>회원 탈퇴 전 반드시 확인하세요!</h5>
+        </div>
+        <div class="card-body">
+            <p class="text-danger fw-bold">회원 탈퇴 시 모든 데이터가 즉시 삭제되며, 복구는 절대 불가능해요.</p>
+            <hr>
+            <h6>탈퇴 시 삭제되는 내용 (전체 삭제):</h6>
+            <ul class="text-danger">
+                <li>회원님의 개인 식별 정보</li>
+                <li>작성하신 모든 게시글, 댓글, 추천 데이터</li>
+                <li>서비스 이용 관련 모든 기록 및 활동 정보</li>
+            </ul>
+            <hr>
+            <p>아래 입력창에 해당 문구를 정확하게 입력해야만 탈퇴가 진행돼요.</p>
+            <p class="alert alert-warning text-center">
+                <span class="fw-bolder fs-5 text-danger">회원 탈퇴 시 주의사항을 숙지하였으며, 계정 및 모든 데이터 삭제에 동의합니다.</span>
+            </p>
+        </div>
+    </div>
+    <form th:action="@{/user/delete}" th:object="${deleteUserDto}" method="post">
+        <div th:replace="~{binding_result_errors :: bindingResultErrorsFragment}"></div>
+        <div th:if="${isLocalUser}" class="mb-3">
+            <label for="password" class="form-label">현재 비밀번호</label>
+            <input type="password" th:field="*{password}" class="form-control" placeholder="현재 비밀번호를 입력해 주세요." autofocus>
+        </div>
+        <div class="mb-3">
+            <label for="message" class="form-label">주의사항 동의</label>
+            <input type="text" th:field="*{message}" class="form-control" placeholder="위 메시지를 정확히 입력해 주세요.">
+        </div>
+        <button type="submit" class="btn btn-danger w-100">탈퇴하기</button>
+    </form>
+</div>
+</html>
