@@ -214,7 +214,9 @@ public class ArticleController {
     @PostMapping("/delete/{id}")
     public String deleteArticle(@PathVariable(value = "id") Integer articleId, Principal principal, RedirectAttributes redirectAttributes) {
         Article article = articleService.getArticle(articleId);
-        articleService.verifyArticleAuthor(article, principal, articleId);
+        if ("USER".equals(userService.findByUsernameOrThrow(principal.getName()).getRole().name())) {
+            articleService.verifyArticleAuthor(article, principal, articleId);
+        }
         articleService.deleteArticle(articleId);
         redirectAttributes.addFlashAttribute(SUCCESS_MSG, SUCCESS_DELETE);
         return "redirect:/article/list";

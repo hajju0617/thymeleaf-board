@@ -8,12 +8,12 @@ public class GlobalConst {
     public static final String SUCCESS_MSG = "successMsg";
     public static final String ERROR_MSG = "errorMsg";
     public static final String SERVER_ERROR = "죄송합니다. 잠시 후 다시 시도해 주세요.";
-    public static final String ERROR_QUERY_STRING_MISMATCH = "정상적인 요청이 아니예요. 다시 시도해주세요.";
+    public static final String ERROR_QUERY_STRING_MISMATCH = "정상적인 요청이 아니예요. 다시 시도해 주세요.";
     public static final String CONTENT_REQUIRED = "내용을 입력해 주세요.";
     public static final String ERROR_NEGATIVE_PAGE_NUMBER = "페이지 번호는 음수가 될 수 없어요.";
     public static final String ERROR_NO_CHANGE_DETECTED = "수정된 사항이 없어요.";
     public static final String ERROR_SELF_VOTE = "본인이 작성한 글/댓글은 추천할 수 없어요.";
-    public static final String ERROR_AUTHOR_MISMATCH = "본인이 작성한 글/댓글만 수정하거나 삭제 할 수 있어요";
+    public static final String ERROR_AUTHOR_MISMATCH = "본인이 작성한 글/댓글만 수정하거나 삭제할 수 있어요";
     public static final String SUCCESS_DELETE = "정상적으로 삭제되었어요.";
     public static final String SUCCESS_MODIFY = "정상적으로 수정되었어요.";
 

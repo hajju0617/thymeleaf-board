@@ -59,7 +59,7 @@
                         </a>
                         <form id="articleDeleteForm" th:action="@{|/article/delete/${article.id}|}" method="post"
                               sec:authorize="isAuthenticated()"
-                              th:if="${article.author != null and #authentication.getPrincipal().getUsername() == article.getAuthor().username}"
+                              th:if="${article.author != null and (#authentication.getPrincipal().getUsername() == article.getAuthor().username or #authorization.expression('hasRole(''ADMIN'')'))}"
                               class="d-inline">
                             <!-- ↑ form 태그는 블록(Block) 요소라 줄바꿈이 발생해서 'class="d-inline' 코드를 추가해서 수정 버튼 옆에 한 줄로 나란히 배치되도록. -->
                             <button type="button" th:onclick="confirmDelete('articleDeleteForm')" class="btn btn-outline-danger">
@@ -116,7 +116,7 @@
                             </a>
                             <form th:id="'commentDeleteForm_' + ${comment.id}" th:action="@{|/comment/delete/${comment.id}|}" method="post"
                                   sec:authorize="isAuthenticated()"
-                                  th:if="${comment.author != null and #authentication.getPrincipal().getUsername() == comment.getAuthor().username}"
+                                  th:if="${comment.author != null and (#authentication.getPrincipal().getUsername() == comment.getAuthor().username or #authorization.expression('hasRole(''ADMIN'')'))}"
                                   class="d-inline">
                                 <button type="button" class="btn btn-outline-danger ms-1"
                                         th:onclick="|confirmDelete('commentDeleteForm_' + ${comment.id})|">

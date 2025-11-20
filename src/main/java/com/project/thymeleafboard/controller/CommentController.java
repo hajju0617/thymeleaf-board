@@ -113,7 +113,9 @@ public class CommentController {
     @PostMapping("/delete/{id}")
     public String deleteComment(@PathVariable(value = "id") Integer commentId, Principal principal, RedirectAttributes redirectAttributes) {
         Comment comment = commentService.getComment(commentId);
-        commentService.verifyCommentAuthor(comment, principal, comment.getArticle().getId());
+        if ("USER".equals(userService.findByUsernameOrThrow(principal.getName()).getRole().name())) {
+            commentService.verifyCommentAuthor(comment, principal, comment.getArticle().getId());
+        }
         int targetCmtPage = commentService.getRedirectPageAfterDelete(comment);
         Optional<Integer> previousCmtId = commentService.findPreviousCommentId(comment.getArticle(), comment.getId());
         commentService.deleteComment(commentId);

@@ -261,8 +261,7 @@ public class UserController {
     @GetMapping("/delete")
     public String deleteUser(Model model, DeleteUserDto deleteUserDto, Principal principal) {
         SiteUser siteUser = userService.findByUsernameOrThrow(principal.getName());
-        boolean isLocalUser = "LOCAL".equals(siteUser.getSignUpProviderType().name());
-        model.addAttribute("isLocalUser", isLocalUser);
+        model.addAttribute("isLocalUser", "LOCAL".equals(siteUser.getSignUpProviderType().name()));
         return "user_delete_confirm";
     }
 
@@ -277,12 +276,13 @@ public class UserController {
     */
     @PostMapping("/delete")
     public String deleteUser(@Valid DeleteUserDto deleteUserDto, BindingResult bindingResult,
-                             RedirectAttributes redirectAttributes, Principal principal,
+                             RedirectAttributes redirectAttributes, Principal principal, Model model,
                              HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         if (bindingResult.hasErrors()) {
             return "user_delete_confirm";
         }
         SiteUser siteUser = userService.findByUsernameOrThrow(principal.getName());
+        model.addAttribute("isLocalUser", "LOCAL".equals(siteUser.getSignUpProviderType().name()));
         if ("LOCAL".equals(siteUser.getSignUpProviderType().name()) && userService.isPasswordIncorrect(deleteUserDto.getPassword(), siteUser.getPassword())) {
             bindingResult.reject("currentPasswordIncorrect", CURRENT_PASSWORD_INCORRECT);
             return "user_delete_confirm";

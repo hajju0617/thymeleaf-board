@@ -85,7 +85,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(InvalidValueException.class)
-    public String handleInvalidValueException(InvalidValueException ive, HttpServletRequest httpServletRequest, RedirectAttributes redirectAttributes) {
+    public String handleInvalidValueException(InvalidValueException ive,
+                                              HttpServletRequest httpServletRequest,
+                                              RedirectAttributes redirectAttributes) {
         log.warn("유효하지 않은 요청 : msg = {}, url = {}, query = {}",
                 ive.getMessage(), httpServletRequest.getRequestURI(), httpServletRequest.getQueryString());
         if (ive.getArticleId() != null) {
@@ -131,23 +133,28 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public String handleIllegalArgumentException(IllegalArgumentException iae, RedirectAttributes redirectAttributes, HttpServletRequest httpServletRequest) {
+    public String handleIllegalArgumentException(IllegalArgumentException iae,
+                                                 RedirectAttributes redirectAttributes,
+                                                 HttpServletRequest httpServletRequest) {
         log.warn("잘못된 요청 : msg = {}, url = {}, query = {}", iae.getMessage(), httpServletRequest.getRequestURI(), httpServletRequest.getQueryString());
         redirectAttributes.addFlashAttribute(ERROR_MSG, "잘못된 요청이에요.");
         return "redirect:/article/list";
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public String handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException hrmnse, RedirectAttributes redirectAttributes, HttpServletRequest httpServletRequest) {
+    public String handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException hrmnse,
+                                                               RedirectAttributes redirectAttributes,
+                                                               HttpServletRequest httpServletRequest) {
         log.warn("비정상적인 접근 : msg = {}, url = {}, query = {}", hrmnse.getMessage(), httpServletRequest.getRequestURI(), httpServletRequest.getQueryString());
         redirectAttributes.addFlashAttribute(ERROR_MSG, "비정상적인 접근이에요.");
         return "redirect:/article/list";
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleException(Exception e, HttpServletRequest httpServletRequest) {
-        log.error("예상치 못한 에러 발생 : msg = {}, url : {}, query : {}",
-                e.getMessage(), httpServletRequest.getRequestURI(), httpServletRequest.getQueryString());
+    public ResponseEntity<String> handleException(Exception e,
+                                                  HttpServletRequest httpServletRequest) {
+        log.error("예상치 못한 에러 발생 : msg = {}, url : {}, query : {}, method : {}",
+                e.getMessage(), httpServletRequest.getRequestURI(), httpServletRequest.getQueryString(), httpServletRequest.getMethod());
         log.error("에러의 원인 : ", e);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
