@@ -1,5 +1,6 @@
 ### Spring MVC 구조를 기반으로,  Thymeleaf 템플릿을 활용하여 구현한 게시판 프로젝트.
-- [hajju.site](https://hajju.site)
+- 웹 사이트: [hajju.site](https://hajju.site)
+- Notion: [Notion](https://www.notion.so/hajju0617/Thymeleaf-Board-291e4679a7a080bd943feaf470650fe6)
 ---
 
 ### 1. 프로젝트 기간.
